@@ -1,0 +1,1 @@
+export const env={"PUBLIC_SITE_MODE":"production","PUBLIC_SENTRY_DSN":"","PUBLIC_CHROMATIC":"false"}

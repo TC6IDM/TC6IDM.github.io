@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ride The Bus demo | TC6IDM</title>
+<meta name="description" content="A playable demonstration of Ride The Bus, a card game in development. Play coins only.">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:#06140d;color:#ece6da;font:400 15px/1.35 Overpass,system-ui,sans-serif}
+.bar{display:flex;gap:6px 18px;align-items:center;flex-wrap:wrap;padding:8px max(12px,env(safe-area-inset-left)) 8px max(12px,env(safe-area-inset-right));border-bottom:1px solid #153a28}
+.bar a{color:#f5d78c;font-weight:800;white-space:nowrap;padding:6px 0}
+.bar p{margin:0;flex:1 1 260px;color:#b9c7bc}
+.bar strong{color:#ece6da}
+:focus-visible{outline:3px solid #f5d78c;outline-offset:3px}
+iframe{flex:1 1 auto;width:100%;border:0;display:block;min-height:0}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a href="../">Back to the project</a>
+  <p><strong>A demonstration of a game in development.</strong> Play coins only, reset on reload. Each round is a fair shuffle priced by the game's own code, in the page; it is not the released maths and nothing here can be bought, won or cashed out.</p>
+</div>
+<iframe title="Ride The Bus, playable demonstration" allow="autoplay; fullscreen" src="../play/index.html?rgs_url=demo.invalid&amp;sessionID=demo&amp;lang=en&amp;currency=XGC&amp;social=true"></iframe>
+</body>
+</html>
