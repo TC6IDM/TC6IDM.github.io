@@ -147,6 +147,8 @@ input[type=range]{width:100%;height:44px;accent-color:var(--hot);margin:0;cursor
 .js .fams.in .bar i{transform:scaleX(var(--w))}
 .fams .bar span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font:900 clamp(20px,1vw + 12px,28px)/1 var(--display);color:var(--lab,var(--ink))}
 .fams li[style*="--lab"] .bar span{right:calc((1 - var(--w)) * 100% + 10px)}
+.js .fams li[style*="--lab"] .bar span{opacity:0;transition:opacity .25s linear}
+.js .fams.in li[style*="--lab"] .bar span{opacity:1;transition-delay:1s}
 @media (max-width:640px){.fams li{grid-template-columns:1fr}}
 .ls{margin:clamp(40px,5vw,64px) 0 0}
 .ls video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000}
@@ -193,6 +195,7 @@ footer p{margin:6px 0 0;color:var(--field-2);font-size:16px}
   .js [data-rise],.js .sign>span,.js .fams .bar i{transition:none}
   .js [data-rise],.js .sign>span{opacity:1;transform:none}
   .js .fams .bar i{transform:scaleX(var(--w))}
+  .js .fams li[style*="--lab"] .bar span{opacity:1;transition:none}
 }
 </style>
 </head>
