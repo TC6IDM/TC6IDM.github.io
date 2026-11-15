@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ride The Bus, direction B: the route</title>
+<meta name="description" content="Ride The Bus: a four-guess card game for the Stake Engine platform, maths and client built solo by TC6IDM. In development.">
+<link rel="icon" href="data:,">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#110c09">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Overpass:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* Dark only, on purpose: the page is the game's back room, and the room is lit by one lamp. */
+:root{
+  --room:#110c09; --wall:#1a120d; --wood:#2f1806; --wood-2:#4a280c; --well:#0b0806;
+  --felt:#0e2e1e; --felt-2:#123a26;
+  --gold:#f5d78c; --gold-hi:#ffe08a; --brass:#b88a25;
+  --cream:#ece6da; --cream-2:#cfc6b6; --crimson:#a80828; --crimson-d:#78061e;
+  --big:#3ddc84; --huge:#ffc93c; --mega:#ff5c5c; --epic:#b27cc8; --ls:#ff9240;
+  --m:clamp(16px,4vw,56px); --max:1320px;
+  --display:'Big Shoulders Display','Overpass',sans-serif; --body:'Overpass',system-ui,sans-serif;
+  --roll:cubic-bezier(.2,.9,.25,1.12);
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--room);color:var(--cream);font:400 clamp(17px,.9vw + 12px,20px)/1.55 var(--body);font-variant-numeric:tabular-nums}
+img,video{display:block;max-width:100%;height:auto}
+a{color:var(--gold);text-underline-offset:3px;text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--gold-hi);outline-offset:3px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--m)}
+.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:8px;background:var(--gold);color:var(--room);padding:8px 12px;z-index:9}
+
+/* the route bar */
+.route{position:sticky;top:0;z-index:6;background:var(--well)}
+.route .wrap{display:flex;align-items:center;gap:clamp(16px,3vw,40px);height:72px}
+.route .home{font-weight:800;color:var(--cream);text-decoration:none;white-space:nowrap}
+.line{position:relative;flex:1;height:72px}
+.line::before{content:"";position:absolute;left:6px;right:6px;top:30px;height:3px;background:#5a4a33}
+.line ol{list-style:none;margin:0;padding:0;position:absolute;inset:0;display:flex;justify-content:space-between}
+.line li{position:relative;width:12px}
+.line a{position:absolute;left:0;top:0;height:72px;display:block;text-decoration:none;color:var(--cream-2);font-size:14px;font-weight:600;white-space:nowrap}
+.line a::before{content:"";position:absolute;left:0;top:25px;width:12px;height:12px;border-radius:50%;background:var(--room);box-shadow:inset 0 0 0 3px #8a7650}
+.line a span{position:absolute;top:44px;left:6px;transform:translateX(-50%)}
+.line li:first-child a span{left:0;transform:none}.line li:last-child a span{left:auto;right:0;transform:none}
+.line a[aria-current]{color:var(--gold-hi)}
+.line a[aria-current]::before,.line a.passed::before{background:var(--gold);box-shadow:none}
+.bus{position:absolute;left:0;top:6px;width:30px;height:16px;transform:translateX(var(--x,0px));will-change:transform;pointer-events:none}
+.where{display:none;font-size:14px;font-weight:600;color:var(--gold-hi);white-space:nowrap}
+@media (max-width:760px){.line a span{display:none}.where{display:block}.route .wrap{gap:14px}}
+
+/* signs: the destination blind */
+.sign{display:inline-block;background:var(--well);padding:.12em .32em .02em;overflow:hidden;max-width:100%}
+.sign>span{display:block}
+.js .sign>span{transform:translateY(105%);transition:transform .62s var(--roll)}
+.js .in .sign>span,.js .sign.in>span{transform:none}
+.sign.terminus{background:var(--crimson)}
+h1.sign{font:900 clamp(60px,13vw,212px)/.92 var(--display);letter-spacing:-.02em;color:var(--gold-hi);margin:0}
+h2 .sign{font:900 clamp(40px,4.6vw + 14px,96px)/.95 var(--display);letter-spacing:-.01em;color:var(--gold)}
+h2{margin:0 0 28px}
+.terminus>span{color:var(--cream)}
+
+/* hero */
+.hero{padding:clamp(28px,5vw,72px) 0 0;background:var(--wall)}
+.hero .sub{display:grid;gap:12px 56px;margin:clamp(20px,3vw,36px) 0 clamp(28px,4vw,52px)}
+.hero .sub p{margin:0;max-width:32ch;font-size:clamp(22px,1.4vw + 13px,32px);line-height:1.22;font-weight:600}
+.hero .sub p.small{font-size:17px;font-weight:400;color:var(--cream-2);max-width:40ch;align-self:end;line-height:1.5}
+@media (min-width:900px){.hero .sub{grid-template-columns:1.3fr 1fr}}
+.rail{background:var(--wood);padding:clamp(10px,1.4vw,20px) 0 0}
+.rail video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000}
+figcaption{font-size:15px;line-height:1.45;color:var(--cream-2);padding:10px 0 0;max-width:72ch}
+.rail figcaption{padding:12px var(--m) 16px;max-width:none;background:var(--wood)}
+
+section{padding:clamp(96px,11vw,184px) 0}
+
+/* how it plays: four stops on a line */
+.plays-intro{display:grid;gap:16px 56px}
+@media (min-width:900px){.plays-intro{grid-template-columns:6fr 6fr;align-items:end}}
+.plays-intro p{margin:0;max-width:56ch}
+ol.stops{list-style:none;padding:0;margin:clamp(48px,6vw,88px) 0 0;display:grid;gap:0;position:relative}
+ol.stops li{position:relative;padding:0 0 32px 44px}
+ol.stops li::before{content:"";position:absolute;left:5px;top:6px;bottom:-6px;width:4px;background:#4d3d29}
+ol.stops li:last-child::before{display:none}
+ol.stops li::after{content:"";position:absolute;left:0;top:2px;width:14px;height:14px;border-radius:50%;background:var(--gold)}
+ol.stops b{display:block;font:800 clamp(30px,2vw + 16px,48px)/1 var(--display);color:var(--cream);letter-spacing:-.005em}
+ol.stops span{display:block;margin-top:6px;color:var(--cream-2);max-width:26ch}
+@media (min-width:900px){
+  ol.stops{grid-template-columns:repeat(4,1fr)}
+  ol.stops li{padding:44px 24px 0 0}
+  ol.stops li::before{left:0;right:0;top:5px;bottom:auto;width:auto;height:4px}
+  ol.stops li:last-child::before{display:block;right:40%}
+  ol.stops li::after{top:0}
+}
+.plays-fig{margin:clamp(48px,6vw,88px) 0 0;display:grid;gap:24px}
+@media (min-width:900px){.plays-fig{grid-template-columns:7fr 5fr;align-items:start}}
+.plays-fig figure{margin:0}
+
+/* the maths, on the felt */
+.felt{background:var(--felt)}
+.felt .lead{display:grid;gap:20px 56px}
+@media (min-width:900px){.felt .lead{grid-template-columns:5fr 7fr}}
+.felt .lead p{margin:0 0 1em;max-width:58ch}
+.eq{margin:clamp(40px,5vw,72px) 0 0;padding:clamp(28px,4vw,56px) var(--m);background:var(--felt-2);margin-left:calc(var(--m)*-1);margin-right:calc(var(--m)*-1)}
+.eq p{margin:0;font:600 clamp(26px,4.8vw,80px)/1.1 var(--body);color:var(--cream);white-space:nowrap;overflow-x:auto}
+.eq i{color:var(--gold-hi)}
+.eq ul{list-style:none;padding:0;margin:22px 0 0;display:flex;flex-wrap:wrap;gap:10px 36px;font-size:17px;color:var(--cream-2)}
+.eq ul i{font-weight:800}
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:36px 48px;margin:clamp(48px,6vw,88px) 0 0}
+.nums dt{font:900 clamp(64px,7vw,124px)/.9 var(--display);color:var(--gold-hi)}
+.nums dd{margin:10px 0 0;max-width:34ch}
+.nums div{margin:0}
+
+/* departures board */
+.board{margin-top:clamp(56px,7vw,112px);background:var(--well);padding:clamp(20px,3vw,40px)}
+.board h3{margin:0 0 18px;font:800 clamp(24px,1vw + 16px,32px)/1.1 var(--display);color:var(--gold);letter-spacing:.01em}
+.board table{width:100%;border-collapse:separate;border-spacing:0 6px}
+.board th,.board td{text-align:left;vertical-align:middle;padding:12px 14px;background:#17110c}
+.board thead th{background:none;color:var(--cream-2);font-size:14px;font-weight:600;padding-top:0;padding-bottom:4px}
+.board th[scope=row]{font:900 clamp(22px,1vw + 14px,30px)/1 var(--display);color:var(--c);white-space:nowrap;letter-spacing:.01em}
+.board td.via{color:var(--cream-2);font-size:16px}
+.board td.max,.board th.max{text-align:right}
+.flap{display:inline-flex;gap:3px;perspective:400px}
+.flap b{display:inline-block;min-width:.66em;text-align:center;background:#262019;color:var(--cream);font:800 clamp(18px,1vw + 12px,26px)/1.45 var(--body);padding:0 .08em;transform-origin:50% 50%}
+.flap b.p{min-width:.32em;background:none}
+.js .board .flap b{transform:rotateX(-90deg);transition:transform .32s cubic-bezier(.3,1.4,.5,1) var(--d,0ms)}
+.js .board.in .flap b{transform:none}
+@media (max-width:700px){
+  .board thead{display:none}
+  .board tr{display:grid;grid-template-columns:1fr auto;margin-bottom:6px;background:#17110c}
+  .board th,.board td{background:none;padding:8px 12px}
+  .board td.via{grid-column:1/-1;order:3;padding-top:0}
+}
+.felt figure{margin:clamp(48px,6vw,88px) 0 0}
+.felt video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000}
+
+/* the craft, on the rail's wood */
+.woodf{background:var(--wood)}
+.tiers{display:grid;gap:28px 56px;align-items:center}
+@media (min-width:900px){.tiers{grid-template-columns:5fr 7fr}}
+.tiers p{margin:0 0 1em;max-width:54ch}
+.blind{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:8px}
+.blind .face{background:var(--well);height:clamp(64px,6vw,96px);width:min(100%,380px);overflow:hidden;position:relative}
+.blind .reel{position:absolute;left:0;right:0;top:0;transition:transform .55s var(--roll)}
+.blind .reel div{height:clamp(64px,6vw,96px);display:flex;align-items:center;justify-content:center;font:900 clamp(38px,3vw + 14px,64px)/1 var(--display);letter-spacing:-.005em}
+.blind .reel div.max{background:var(--crimson);color:var(--cream)}
+.blind button{font:800 17px/1 var(--body);background:var(--gold);color:var(--room);border:0;padding:16px 20px;cursor:pointer;min-height:48px}
+.blind button:hover{background:var(--gold-hi)}
+.blind button:active{transform:translateY(1px)}
+.woodf figure{margin:0}
+.woodf video{width:100%;background:#000}
+.craft-grid{display:grid;gap:40px 48px;margin-top:clamp(56px,7vw,112px)}
+@media (min-width:900px){.craft-grid{grid-template-columns:8fr 4fr;align-items:end}}
+.craft-grid .phone video{aspect-ratio:390/844;max-height:78vh;width:auto;margin:0 auto}
+.room-row{display:grid;gap:24px 48px;margin-top:clamp(56px,7vw,112px)}
+@media (min-width:900px){.room-row{grid-template-columns:7fr 5fr;align-items:center}}
+.room-row h3,.notes h3{font:800 clamp(26px,1.2vw + 16px,36px)/1.05 var(--display);color:var(--gold);margin:0 0 10px;letter-spacing:.005em}
+.room-row p{margin:0;max-width:52ch}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:32px 48px;margin:clamp(56px,7vw,112px) 0 0;padding:0;list-style:none}
+.notes p{margin:0;color:var(--cream)}
+.woodf figcaption{color:#d9ccb6}
+
+/* built: the terminus */
+.built{background:var(--room)}
+.built dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:32px 48px;margin:clamp(40px,5vw,64px) 0 0}
+.built dt{font-weight:800;font-size:22px;color:var(--gold)}
+.built dd{margin:6px 0 0}
+.built .state{margin:clamp(48px,6vw,88px) 0 0;font:800 clamp(28px,2vw + 16px,48px)/1.1 var(--body);max-width:22ch}
+
+footer{background:var(--well);padding:clamp(48px,6vw,96px) 0 40px}
+footer .end{display:flex;flex-wrap:wrap;gap:16px 40px;align-items:baseline;justify-content:space-between}
+footer .end p{margin:0;font:900 clamp(44px,8vw,128px)/.9 var(--display);color:var(--gold-hi);letter-spacing:-.015em}
+footer nav{display:flex;flex-wrap:wrap;gap:12px 28px;font-size:18px}
+footer nav a{padding:6px 0}
+
+.js [data-rise]{opacity:0;transform:translateY(24px);transition:opacity .5s cubic-bezier(.2,.7,.2,1) var(--d,0ms),transform .5s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+.js [data-rise].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .js [data-rise],.js .sign>span,.js .board .flap b{opacity:1;transform:none;transition:none}
+  .blind .reel{transition:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="route">
+  <div class="wrap">
+    <a class="home" href="../../">TC6IDM</a>
+    <nav class="line" aria-label="Stops on this page">
+      <svg class="bus" viewBox="0 0 30 16" aria-hidden="true"><rect x="0" y="0" width="30" height="12" rx="2" fill="#ffe08a"/><rect x="3" y="2.5" width="5" height="4" fill="#110c09"/><rect x="10" y="2.5" width="5" height="4" fill="#110c09"/><rect x="17" y="2.5" width="5" height="4" fill="#110c09"/><rect x="24" y="2.5" width="4" height="6" fill="#110c09"/><circle cx="7" cy="13" r="2.6" fill="#110c09" stroke="#ffe08a" stroke-width="1.4"/><circle cx="23" cy="13" r="2.6" fill="#110c09" stroke="#ffe08a" stroke-width="1.4"/></svg>
+      <ol>
+        <li><a href="#top"><span>Ride The Bus</span></a></li>
+        <li><a href="#plays"><span>How it plays</span></a></li>
+        <li><a href="#maths"><span>The maths</span></a></li>
+        <li><a href="#craft"><span>The craft</span></a></li>
+        <li><a href="#built"><span>How it was built</span></a></li>
+      </ol>
+    </nav>
+    <span class="where" aria-hidden="true">Ride The Bus</span>
+  </div>
+</header>
+
+<main id="main">
+<div class="hero" id="top" data-stop="Ride The Bus">
+  <div class="wrap">
+    <h1 class="sign in"><span>Ride The Bus</span></h1>
+    <div class="sub">
+      <p>A four-guess card game for the Stake Engine platform. The maths and the client, built by one person.</p>
+      <p class="small">In development, not yet released. Everything you see moving here is captured from the running game.</p>
+    </div>
+  </div>
+  <figure class="rail" style="margin:0">
+    <video data-auto muted playsinline loop preload="metadata" poster="../../ride-the-bus/media/round-classic-poster.webp" aria-describedby="cap-hero">
+      <source src="../../ride-the-bus/media/round-classic.webm" type="video/webm"><source src="../../ride-the-bus/media/round-classic.mp4" type="video/mp4">
+    </video>
+    <figcaption id="cap-hero">A Classic round: four cards turn, the win takeover counts to $17.20, and the hand flies back to the board.</figcaption>
+  </figure>
+</div>
+
+<section id="plays" data-stop="How it plays" aria-labelledby="h-plays"><div class="wrap">
+  <div class="plays-intro">
+    <h2 id="h-plays" data-sign><span class="sign"><span>How it plays</span></span></h2>
+    <p data-rise>All four guesses are picked before the deal, then the cards turn one by one. A right guess rides on; a wrong one ends the ride. Each combination of guesses is its own bet mode, with its own published table of outcomes.</p>
+  </div>
+  <ol class="stops">
+    <li data-rise><b>Colour</b><span>Red or black.</span></li>
+    <li data-rise style="--d:80ms"><b>Higher or lower</b><span>Than card one, or equal to it.</span></li>
+    <li data-rise style="--d:160ms"><b>Inside or outside</b><span>Of the first two, or equal to one.</span></li>
+    <li data-rise style="--d:240ms"><b>Suit</b><span>One of four.</span></li>
+  </ol>
+  <div class="plays-fig">
+    <figure data-rise><img src="../../ride-the-bus/media/board-idle.webp" width="1280" height="720" loading="lazy" alt="The table before a deal: four face-down crimson cards, the four guess squares, chips, a whiskey glass, and two men in suits in a dark wood back room."><figcaption>The table before a deal.</figcaption></figure>
+    <figure data-rise style="--d:80ms"><img src="../../ride-the-bus/media/mode-picker.webp" width="1280" height="720" loading="lazy" alt="The mode picker: five game families, each with a seven-bolt volatility meter."><figcaption>Five families on one seven-step volatility ruler.</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="maths" class="felt" data-stop="The maths" aria-labelledby="h-maths"><div class="wrap">
+  <div class="lead">
+    <h2 id="h-maths" data-sign><span class="sign"><span>The maths</span></span></h2>
+    <div data-rise>
+      <p>Each card's multiplier is solved so the expected change across the card is one fixed decay, whatever the chance of the guess. A coin flip and a long shot are worth the same in expectation, and four cards compound to the target return.</p>
+      <p>A Python package solves every stage, writes the published books and reweights each mode so its recorded return lands on 96%.</p>
+    </div>
+  </div>
+  <div class="eq" data-rise>
+    <p aria-label="p times m, plus one minus p times r, equals d"><i>p</i> · <i>m</i> + (1 − <i>p</i>) · <i>r</i> = <i>d</i></p>
+    <ul><li><i>p</i> the chance the guess is right</li><li><i>m</i> the multiplier, solved for</li><li><i>r</i> what a miss keeps: nothing on card one, then 30%</li><li><i>d</i> the decay per card, four of them make 0.99</li></ul>
+  </div>
+  <dl class="nums">
+    <div data-rise><dt>257</dt><dd>published modes: four families of 64 playable combinations, plus Three of a Kind.</dd></div>
+    <div data-rise style="--d:70ms"><dt>96%</dt><dd>recorded return, pinned on every mode.</dd></div>
+    <div data-rise style="--d:140ms"><dt>0.1×</dt><dd>the step every payout floors to. Never rounded up.</dd></div>
+  </dl>
+  <p data-rise style="margin:40px 0 0;max-width:58ch">The client's tests replay every published book through its own arithmetic, so the screen and the server can never disagree.</p>
+
+  <div class="board" data-board>
+    <h3>Departures, calmest first</h3>
+    <table>
+      <thead><tr><th scope="col">Family</th><th scope="col">Calling at</th><th scope="col" class="max">Highest multiplier</th></tr></thead>
+      <tbody>
+        <tr style="--c:var(--big)"><th scope="row">Second Chance</th><td class="via">First miss from card two keeps 50%, ride goes on</td><td class="max"><span class="flap" aria-label="585.2×">585.2×</span></td></tr>
+        <tr style="--c:var(--huge)"><th scope="row">Classic</th><td class="via">The base rules</td><td class="max"><span class="flap" aria-label="1,354.2×">1,354.2×</span></td></tr>
+        <tr style="--c:var(--ls)"><th scope="row">Last Stop</th><td class="via">A right suit draws a ticket, 2× to 10×</td><td class="max"><span class="flap" aria-label="4,301.9×">4,301.9×</span></td></tr>
+        <tr style="--c:var(--mega)"><th scope="row">High Stakes</th><td class="via">A miss keeps 15%</td><td class="max"><span class="flap" aria-label="2,237.3×">2,237.3×</span></td></tr>
+        <tr style="--c:var(--epic)"><th scope="row">Three of a Kind</th><td class="via">Three cards, one rank; costs 250×</td><td class="max"><span class="flap" aria-label="4,583.3×">4,583.3×</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figure data-rise>
+    <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/last-stop-ticket-poster.webp" aria-describedby="cap-ls">
+      <source src="../../ride-the-bus/media/last-stop-ticket.webm" type="video/webm"><source src="../../ride-the-bus/media/last-stop-ticket.mp4" type="video/mp4">
+    </video>
+    <figcaption id="cap-ls">Last Stop: the right suit draws a 10× ticket, laid over the fanned hand.</figcaption>
+  </figure>
+</div></section>
+
+<section id="craft" class="woodf" data-stop="The craft" aria-labelledby="h-craft"><div class="wrap">
+  <div class="tiers">
+    <div>
+      <h2 id="h-craft" data-sign><span class="sign"><span>The craft</span></span></h2>
+      <p data-rise>The win takeover is a departures board. Its title is the destination blind at full size, lettered stop by stop in each tier's colour, and a bus rides the route underneath to the stop reached.</p>
+      <div class="blind" data-rise>
+        <div class="face" aria-live="polite"><div class="reel" id="reel">
+          <div style="color:var(--big)">Big</div><div style="color:var(--huge)">Huge</div><div style="color:var(--mega)">Mega</div><div style="color:var(--epic)">Epic</div><div class="max">Max</div>
+        </div></div>
+        <button type="button" id="roll">Roll the blind</button>
+      </div>
+    </div>
+    <figure data-rise>
+      <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/takeover-max-poster.webp" aria-describedby="cap-max" style="aspect-ratio:16/9;object-fit:cover">
+        <source src="../../ride-the-bus/media/takeover-max.webm" type="video/webm"><source src="../../ride-the-bus/media/takeover-max.mp4" type="video/mp4">
+      </video>
+      <figcaption id="cap-max">The whole ladder, Big to Max, the split-flap figure counting to $1,354.20.</figcaption>
+    </figure>
+  </div>
+  <div class="craft-grid">
+    <figure data-rise>
+      <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/hold-peel-poster.webp" aria-describedby="cap-peel" style="aspect-ratio:16/9;object-fit:cover">
+        <source src="../../ride-the-bus/media/hold-peel.webm" type="video/webm"><source src="../../ride-the-bus/media/hold-peel.mp4" type="video/mp4">
+      </video>
+      <figcaption id="cap-peel">The held last card. On a ride with an Equal pick it comes out in front and is peeled from the corner.</figcaption>
+    </figure>
+    <figure class="phone" data-rise style="--d:80ms">
+      <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/phone-round-poster.webp" aria-describedby="cap-phone">
+        <source src="../../ride-the-bus/media/phone-round.webm" type="video/webm"><source src="../../ride-the-bus/media/phone-round.mp4" type="video/mp4">
+      </video>
+      <figcaption id="cap-phone">A phone has its own layout.</figcaption>
+    </figure>
+  </div>
+  <div class="room-row">
+    <figure data-rise>
+      <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/room-lights-poster.webp" aria-describedby="cap-room" style="aspect-ratio:16/9;object-fit:cover">
+        <source src="../../ride-the-bus/media/room-lights.webm" type="video/webm"><source src="../../ride-the-bus/media/room-lights.mp4" type="video/mp4">
+      </video>
+      <figcaption id="cap-room">The help screen closes and the room lights up.</figcaption>
+    </figure>
+    <div data-rise style="--d:80ms"><h3>The back room</h3><p>The Floorman stands at the table and the Boss sits in the corner with his cigar. A rare win moves them; they never react before the cards show it.</p></div>
+  </div>
+  <ul class="notes">
+    <li data-rise><h3>17 languages</h3><p>Every string translated, Arabic right to left, every name fitted to its sign.</p></li>
+    <li data-rise style="--d:70ms"><h3>Sound in code</h3><p>Every sound effect synthesised in the browser, under one produced music bed.</p></li>
+    <li data-rise style="--d:140ms"><h3>Seven screens</h3><p>From a 320px phone to a desktop window, each layout checked at all seven.</p></li>
+  </ul>
+</div></section>
+
+<section id="built" class="built" data-stop="How it was built" aria-labelledby="h-built"><div class="wrap">
+  <h2 id="h-built" data-sign><span class="sign terminus"><span>How it was built</span></span></h2>
+  <dl>
+    <div data-rise><dt>Maths in Python</dt><dd>Solves the prices and generates every mode's published book.</dd></div>
+    <div data-rise style="--d:70ms"><dt>Client in Svelte 5</dt><dd>Turns each book into the round on screen.</dd></div>
+    <div data-rise style="--d:140ms"><dt>About 1,000 tests</dt><dd>A parity suite among them replays every published mode.</dd></div>
+    <div data-rise style="--d:210ms"><dt>Solo</dt><dd>One developer with Claude Code as the pair, for the Stake Engine platform.</dd></div>
+  </dl>
+  <p class="state" data-rise>In development, not yet released.</p>
+</div></section>
+</main>
+
+<footer><div class="wrap end">
+  <p aria-hidden="true">End of the line</p>
+  <nav aria-label="Elsewhere"><a href="../../">Back to the portfolio</a><a href="https://github.com/TC6IDM">GitHub: TC6IDM</a></nav>
+</div></footer>
+
+<script>
+document.documentElement.classList.add('js');
+(function(){
+  var rm=matchMedia('(prefers-reduced-motion: reduce)');
+  /* videos */
+  var vids=[].slice.call(document.querySelectorAll('video[data-auto]'));
+  function mode(){vids.forEach(function(v){if(rm.matches){v.controls=true;v.pause();}else v.controls=false;});}
+  mode(); rm.addEventListener('change',mode);
+  var vio=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;if(rm.matches)return;
+    if(e.isIntersecting){if(v.preload==='none')v.preload='auto';var p=v.play();if(p)p.catch(function(){});}else v.pause();});},{threshold:.35});
+  vids.forEach(function(v){vio.observe(v);});
+  /* flaps: split each figure into tiles */
+  document.querySelectorAll('.flap').forEach(function(f){var t=f.textContent;f.textContent='';
+    t.split('').forEach(function(c,i){var b=document.createElement('b');b.setAttribute('aria-hidden','true');b.textContent=c;if(c===','||c==='.')b.className='p';b.style.setProperty('--d',(i*45)+'ms');f.appendChild(b);});});
+  /* entrances */
+  var rio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');rio.unobserve(e.target);}});},{rootMargin:'0px 0px -10% 0px'});
+  document.querySelectorAll('[data-rise],[data-sign],[data-board]').forEach(function(el){rio.observe(el);});
+  document.querySelectorAll('[data-board]').forEach(function(b){b.classList.add('board');});
+  /* the route: bus position and the current stop */
+  var line=document.querySelector('.line'),bus=document.querySelector('.bus'),where=document.querySelector('.where');
+  var links=[].slice.call(line.querySelectorAll('a')),stops=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  var ticking=false;
+  function place(){ticking=false;
+    var y=scrollY+innerHeight*.35,cur=0;
+    stops.forEach(function(s,i){if(s&&s.offsetTop<=y)cur=i;});
+    var a=stops[cur],b=stops[cur+1],t=0;
+    if(b){t=Math.min(1,Math.max(0,(y-a.offsetTop)/(b.offsetTop-a.offsetTop)));}
+    var w=line.clientWidth-12,step=w/(stops.length-1);
+    var x=Math.min(w,(cur+t)*step)-9;
+    if(scrollY+innerHeight>=document.documentElement.scrollHeight-4){x=w-9;cur=stops.length-1;}
+    line.style.setProperty('--x',x+'px');bus.style.setProperty('--x',x+'px');
+    links.forEach(function(l,i){if(i===cur)l.setAttribute('aria-current','location');else l.removeAttribute('aria-current');l.classList.toggle('passed',i<cur);});
+    where.textContent=links[cur].textContent;
+  }
+  addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(place);}},{passive:true});
+  addEventListener('resize',place);place();
+  /* the blind */
+  var reel=document.getElementById('reel'),n=0,face=reel.parentNode;
+  document.getElementById('roll').addEventListener('click',function(){n=(n+1)%5;reel.style.transform='translateY('+(-n*face.clientHeight)+'px)';});
+  addEventListener('resize',function(){reel.style.transform='translateY('+(-n*face.clientHeight)+'px)';});
+})();
+</script>
+</body>
+</html>
