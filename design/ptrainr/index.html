@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>PTrainr Page Directions</title>
+<style>
+/* Layout: one reading column on the app's desk; each direction is a sheet with its previews first, its notes beside. */
+:root{
+  --desk:oklch(95.6% 0.011 252);--paper:oklch(99.6% 0.002 250);--ink:oklch(26% 0.014 260);--ink-2:oklch(36% 0.016 260);
+  --muted:oklch(46% 0.018 260);--rule:oklch(89.5% 0.012 252);--coach:oklch(52.6% 0.213 267.4);--on-coach:#fff;
+  --pick:oklch(50% 0.13 152);--shadow:0 1px 2px oklch(26% 0.03 260 / .06),0 8px 24px oklch(26% 0.03 260 / .08);
+  --sans:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',system-ui,sans-serif;--mono:'Atkinson Hyperlegible Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --desk:oklch(16.5% 0.014 255);--paper:oklch(21.5% 0.016 255);--ink:oklch(95% 0.006 255);--ink-2:oklch(86% 0.01 255);
+  --muted:oklch(75% 0.016 255);--rule:oklch(32% 0.018 255);--coach:oklch(72% 0.13 267.4);--on-coach:oklch(16% 0.045 267.4);
+  --pick:oklch(76% 0.14 152);--shadow:0 1px 2px #0006,0 8px 24px #0005;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:oklch(16.5% 0.014 255);--paper:oklch(21.5% 0.016 255);--ink:oklch(95% 0.006 255);--ink-2:oklch(86% 0.01 255);
+  --muted:oklch(75% 0.016 255);--rule:oklch(32% 0.018 255);--coach:oklch(72% 0.13 267.4);--on-coach:oklch(16% 0.045 267.4);
+  --pick:oklch(76% 0.14 152);--shadow:0 1px 2px #0006,0 8px 24px #0005;color-scheme:dark}
+@font-face{font-family:'Atkinson Hyperlegible Next';font-weight:200 800;font-display:swap;src:url("./../../ptrainr/fonts/atkinson-latin.woff2") format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible Mono';font-weight:200 800;font-display:swap;src:url("./../../ptrainr/fonts/atkinson-mono-latin.woff2") format('woff2')}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--desk);color:var(--ink);font:400 17px/1.55 var(--sans)}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+h1,h2,h3,p,ul,dl,dd,figure{margin:0;padding:0}
+ul{list-style:none}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.08;letter-spacing:-.015em;text-wrap:balance}
+.lede{color:var(--ink-2);max-width:40em}
+.sheet{background:var(--paper);border-radius:18px;box-shadow:var(--shadow);padding:20px 18px;display:grid;gap:18px;min-width:0}
+.sheet h2{font-size:clamp(22px,3vw,30px);line-height:1.15;letter-spacing:-.01em;text-wrap:balance}
+.head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.letter{font:600 15px var(--mono);color:var(--muted)}
+.pick{font-size:14px;font-weight:700;color:var(--pick);border:1.5px solid var(--pick);border-radius:999px;padding:3px 11px}
+.open{margin-left:auto;font-weight:700;font-size:16px;background:var(--coach);color:var(--on-coach);text-decoration:none;border-radius:12px;padding:11px 16px;min-height:44px;display:inline-flex;align-items:center}
+.open:focus-visible,a:focus-visible{outline:2px solid var(--coach);outline-offset:3px}
+.views{display:grid;grid-template-columns:minmax(0,3.4fr) minmax(0,1fr);gap:12px;align-items:start}
+.views img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--rule)}
+.night{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .views .day{display:none}:root:not([data-theme="light"]) .views .night{display:block}}
+:root[data-theme="dark"] .views .day{display:none}:root[data-theme="dark"] .views .night{display:block}
+.notes{display:grid;gap:12px}
+.notes div{display:grid;gap:2px;min-width:0}
+.notes dt{font-size:14px;font-weight:700;color:var(--coach)}
+.notes dd{color:var(--ink-2)}
+.why{border-top:1px solid var(--rule);padding-top:14px;color:var(--ink)}
+.two{display:grid;gap:22px}
+.plain h2{font-size:21px}
+.plain li{padding:9px 0;border-top:1px solid var(--rule);color:var(--ink-2)}
+.plain li b{color:var(--ink)}
+a{color:var(--coach)}
+.num{font-family:var(--mono)}
+@media (min-width:820px){
+  .sheet{padding:28px}
+  .dir{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px}
+  .dir .head,.dir .why{grid-column:1/-1}
+  .two{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header style="display:grid;gap:12px">
+    <p class="letter">TC6IDM.github.io · /ptrainr/ · 15 November 2026</p>
+    <h1>Three directions for the PTrainr page</h1>
+    <p class="lede">Each one is a working page with the real captures and real copy, in Day and Night, from a phone up to a desktop. Open them, try the Day and Night switch, then pick one or mix them. Nothing gets built until you do.</p>
+  </header>
+
+  <section class="sheet dir">
+    <div class="head"><span class="letter">A</span><h2>The training log</h2><span class="pick">My pick</span><a class="open" href="./a-training-log.html">Open A</a></div>
+    <div class="views"><img class="day" src="./preview/a-desk-day.webp" width="960" height="630" alt="Direction A at desktop width, Day."><img class="night" src="./preview/a-desk-night.webp" width="960" height="630" alt="Direction A at desktop width, Night."><img class="day" src="./preview/a-phone-day.webp" width="375" height="760" alt="Direction A on a phone, Day."><img class="night" src="./preview/a-phone-night.webp" width="375" height="760" alt="Direction A on a phone, Night."></div>
+    <dl class="notes">
+      <div><dt>The idea</dt><dd>The page is a workout. Six sections are six sets; each has a blue line of what was prescribed, and a tick that goes green once you have read it. A footer counts "3 of 6 sets done", the way the logger does.</dd></div>
+      <div><dt>What it reuses</dt><dd>PTrainr's own desk, sheets, two inks, Atkinson Hyperlegible, the tick and the logger's footer.</dd></div>
+      <div><dt>Motion</dt><dd>Tick: background and colour over 180 ms ease-out with a 1.12 scale pop. Footer bar: scaleX over 300 ms. Sections rise 14 px and fade over 450 ms. Reduced motion: ticks and bar change with no animation, nothing rises.</dd></div>
+      <div><dt>Weight</dt><dd><span class="num">373 KB</span> for the whole page in one scheme; under 150 KB before scrolling.</dd></div>
+      <div><dt>Risk</dt><dd>The tick idea can read as cute if it is pushed further than this. The fixed footer takes 52 px of a phone screen.</dd></div>
+    </dl>
+    <p class="why"><b>Why this one:</b> it explains the product by behaving like it, it is the only one a visitor could not mistake for another app's page, and it is the lightest.</p>
+  </section>
+
+  <section class="sheet dir">
+    <div class="head"><span class="letter">B</span><h2>The case study</h2><a class="open" href="./b-case-study.html">Open B</a></div>
+    <div class="views"><img class="day" src="./preview/b-desk-day.webp" width="960" height="630" alt="Direction B at desktop width, Day."><img class="night" src="./preview/b-desk-night.webp" width="960" height="630" alt="Direction B at desktop width, Night."><img class="day" src="./preview/b-phone-day.webp" width="375" height="760" alt="Direction B on a phone, Day."><img class="night" src="./preview/b-phone-night.webp" width="375" height="760" alt="Direction B on a phone, Night."></div>
+    <dl class="notes">
+      <div><dt>The idea</dt><dd>Quiet and editorial. One column of text, four numbered chapters, figures numbered like a paper, and a ledger of the project's numbers. It is written for someone deciding whether to hire the person who built this.</dd></div>
+      <div><dt>What it reuses</dt><dd>The type and the blue, on plain paper instead of the desk. A strip of five phones that scrolls sideways on a phone.</dd></div>
+      <div><dt>Motion</dt><dd>Almost none: figures fade in over 500 ms, the strip snaps. Reduced motion: no fade.</dd></div>
+      <div><dt>Weight</dt><dd><span class="num">360 KB</span> for the whole page in one scheme.</dd></div>
+      <div><dt>Risk</dt><dd>The safest and the least memorable. Numbered chapters are what every case study does.</dd></div>
+    </dl>
+  </section>
+
+  <section class="sheet dir">
+    <div class="head"><span class="letter">C</span><h2>The wall of screens</h2><a class="open" href="./c-wall-of-screens.html">Open C</a></div>
+    <div class="views"><img class="day" src="./preview/c-desk-day.webp" width="960" height="630" alt="Direction C at desktop width, Day."><img class="night" src="./preview/c-desk-night.webp" width="960" height="630" alt="Direction C at desktop width, Night."><img class="day" src="./preview/c-phone-day.webp" width="375" height="760" alt="Direction C on a phone, Day."><img class="night" src="./preview/c-phone-night.webp" width="375" height="760" alt="Direction C on a phone, Night."></div>
+    <dl class="notes">
+      <div><dt>The idea</dt><dd>Bold. The logo's navy, very large type, and two rows of real screens drifting behind the headline. Then full-width blocks: blue for the coach, the desk for the client, navy for the numbers.</dd></div>
+      <div><dt>What it reuses</dt><dd>The logo's navy and blue, and sixteen Night captures for the wall.</dd></div>
+      <div><dt>Motion</dt><dd>The wall drifts sideways, 70 s and 90 s per loop, linear, in opposite directions. Blocks rise 28 px over 600 ms. Reduced motion: the wall stands still.</dd></div>
+      <div><dt>Weight</dt><dd><span class="num">662 KB</span>, most of it the wall, which loads up front.</dd></div>
+      <div><dt>Risk</dt><dd>It looks like a marketing page, and ptrainr.com already is one. It is the furthest from how the app itself feels, and the heaviest.</dd></div>
+    </dl>
+  </section>
+
+  <div class="two">
+    <section class="sheet plain"><h2>All three share</h2><ul>
+      <li><b>Real captures only.</b> Web, phone and desktop, Day and Night, from a seeded demo account on a local server. Maya, Jordan and Priya are invented.</li>
+      <li><b>The same story:</b> what it is, the logger, meals and the barcode scanner, progress and messages, the coach's side, the redesign with a before and after, and the three apps kept in parity.</li>
+      <li><b>The same figures:</b> 63 screens, 19 languages, 1,976 strings, 64 checks, 2 dependencies, counted from the repo today.</li>
+      <li><b>A Day and Night switch</b> that swaps every screenshot, phone width first, reduced motion respected.</li>
+    </ul></section>
+    <section class="sheet plain"><h2>None of them touches</h2><ul>
+      <li><b>The home page or the shared frame.</b> Everything sits under <span class="num">ptrainr/</span> and <span class="num">design/ptrainr/</span>, so it cannot collide with the Ride The Bus work. The link back and the shared header get matched once the home page exists.</li>
+      <li><b>Source, documents or anything private.</b> No real person, no production data, no secrets.</li>
+      <li><b>ptrainr.com.</b> This is a portfolio page that links to it.</li>
+    </ul></section>
+  </div>
+
+  <section class="sheet plain"><h2>Questions for you</h2><ul>
+    <li><b>Which direction?</b> A, B, C, or a mix (for example A with B's ledger of numbers).</li>
+    <li><b>iPhone screenshots.</b> None exist on this machine. They need the Mac, or one Screenshots run in CI with iOS on, which costs ten times the minutes. Until then the page shows the web app and says the iOS app exists.</li>
+    <li><b>Android screenshots</b> are being captured in the emulator and go into a "same screen, three platforms" row in whichever direction you pick.</li>
+    <li><b>Who is named.</b> The copy names nobody. Say if it should credit you, the two of you, or how it was built.</li>
+    <li><b>"Private pilot"</b> is how the page describes the status. Say if you would rather it said something else.</li>
+  </ul></section>
+</div>
+</body>
+</html>

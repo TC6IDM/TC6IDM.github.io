@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PTrainr | TC6IDM</title>
+<meta name="description" content="PTrainr: a training app for coaches and their clients, on the web, Android and iOS. Built by TC6IDM and Bora, alongside Claude Code. In a private pilot.">
+<link rel="icon" href="img/logo.svg">
+<meta name="color-scheme" content="light dark">
+<link rel="preload" href="fonts/atkinson-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* PTrainr's own identity: its desk, sheets, logo blue and navy, and Atkinson Hyperlegible.
+   The page is a workout: six sections are six sets, and the bar at the top counts them off. */
+@font-face{font-family:'Atkinson Hyperlegible Next';font-weight:200 800;font-display:swap;src:url("fonts/atkinson-latin.woff2") format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible Mono';font-weight:200 800;font-display:swap;src:url("fonts/atkinson-mono-latin.woff2") format('woff2')}
+:root{
+  --navy:#131E40;--blue:#3659E3;--sky:#9db1ff;
+  --desk:oklch(95.6% 0.011 252);--paper:oklch(99.6% 0.002 250);--ink:oklch(26% 0.014 260);--ink-2:oklch(36% 0.016 260);
+  --muted:oklch(46% 0.018 260);--rule:oklch(89.5% 0.012 252);--accent:oklch(52.6% 0.213 267.4);--done:oklch(50% 0.13 152);
+  --hero:var(--desk);--hero-ink:var(--navy);--hero-ink-2:oklch(36% 0.016 260);--hero-accent:var(--blue);--hero-line:oklch(26% 0.03 260 / .3);--wall:.6;
+  --bar:oklch(99.6% 0.002 250 / .92);--shadow:0 18px 50px oklch(26% 0.06 262 / .18);
+  --sans:'Atkinson Hyperlegible Next',system-ui,sans-serif;--mono:'Atkinson Hyperlegible Mono',ui-monospace,monospace;
+  --m:clamp(16px,4vw,56px);--max:1360px;--bar-h:68px;color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --desk:oklch(16.5% 0.014 255);--paper:oklch(21.5% 0.016 255);--ink:oklch(95% 0.006 255);--ink-2:oklch(86% 0.01 255);
+  --muted:oklch(75% 0.016 255);--rule:oklch(32% 0.018 255);--accent:oklch(72% 0.13 267.4);--done:oklch(76% 0.14 152);
+  --hero:var(--navy);--hero-ink:#fff;--hero-ink-2:#dfe5fa;--hero-accent:var(--sky);--hero-line:#ffffff55;--wall:.5;
+  --bar:oklch(16.5% 0.014 255 / .92);--shadow:0 18px 50px #0008;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:oklch(16.5% 0.014 255);--paper:oklch(21.5% 0.016 255);--ink:oklch(95% 0.006 255);--ink-2:oklch(86% 0.01 255);
+  --muted:oklch(75% 0.016 255);--rule:oklch(32% 0.018 255);--accent:oklch(72% 0.13 267.4);--done:oklch(76% 0.14 152);
+  --hero:var(--navy);--hero-ink:#fff;--hero-ink-2:#dfe5fa;--hero-accent:var(--sky);--hero-line:#ffffff55;--wall:.5;
+  --bar:oklch(16.5% 0.014 255 / .92);--shadow:0 18px 50px #0008;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--bar-h) + 12px)}
+body{margin:0;background:var(--desk);color:var(--ink);font:400 18px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+h1,h2,h3,p,figure,ul,ol,dl,dd{margin:0;padding:0}
+ul,ol{list-style:none}
+a{color:inherit;text-underline-offset:.18em}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--m)}
+.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:8px;background:var(--ink);color:var(--desk);padding:10px 14px;z-index:9}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* one capture per theme; the page shows the one that matches */
+.night{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .day{display:none}:root:not([data-theme="light"]) .night{display:block}}
+:root[data-theme="dark"] .day{display:none}:root[data-theme="dark"] .night{display:block}
+
+/* the bar: who and what on the left, the sets counted off beside it */
+.top{position:sticky;top:0;z-index:6;background:var(--bar);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+.top .wrap{display:flex;align-items:center;gap:clamp(12px,3vw,36px);height:var(--bar-h)}
+.id{display:flex;align-items:center;gap:10px;flex:none}
+.id img{width:34px;height:34px}
+.id span{display:grid;line-height:1.1}
+.id .name{font-weight:700;font-size:19px;text-decoration:none}
+.id .by{font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;padding:2px 0}
+.id .by:hover{color:var(--accent)}
+.sets{flex:1;min-width:0;display:flex;align-items:center;gap:12px}
+.sets b{font-size:15px;white-space:nowrap}
+.track{flex:1;min-width:24px;height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.track i{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform .3s ease-out}
+.track i.all{background:var(--done)}
+.toggle{flex:none;font:600 14px var(--sans);color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:999px;padding:8px 13px;min-height:44px;cursor:pointer}
+@media (max-width:520px){.sets .long{display:none}.toggle{padding:8px 10px}}
+
+/* hero: very large type over a drifting wall of the app's own screens */
+.hero{position:relative;overflow:hidden;background:var(--hero);color:var(--hero-ink);padding:clamp(150px,34vw,300px) 0 clamp(28px,5vw,56px)}
+.hero h1{position:relative;z-index:2;font-size:clamp(52px,13.5vw,190px);line-height:.9;letter-spacing:-.04em;font-weight:800;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--hero-accent)}
+.hero .lede{position:relative;z-index:2;font-size:clamp(18px,1.8vw,23px);max-width:31em;margin-top:22px;color:var(--hero-ink-2)}
+.cta{position:relative;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:24px}
+.btn{display:inline-flex;align-items:center;min-height:48px;padding:0 20px;border-radius:12px;background:var(--blue);color:#fff;font-weight:700;text-decoration:none}
+.btn:hover{background:#2b49c4}
+.soon{display:inline-flex;align-items:center;min-height:48px;padding:0 16px;border-radius:12px;border:1px dashed var(--hero-line);font-size:15px;font-weight:600;color:var(--hero-ink-2)}
+.tags{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;font:600 14px var(--mono)}
+.tags span{border:1px solid var(--hero-line);border-radius:999px;padding:6px 12px}
+.wall{position:absolute;inset:-4% -20% auto;z-index:1;transform:rotate(-8deg);opacity:var(--wall);display:grid;gap:14px;pointer-events:none}
+.row{display:flex;gap:14px;width:max-content;animation:drift 70s linear infinite}
+.row:nth-child(2){animation-direction:reverse;animation-duration:90s}
+.row img{width:clamp(120px,15vw,210px);border-radius:16px;box-shadow:0 2px 10px oklch(26% 0.06 262 / .2)}
+@keyframes drift{to{transform:translateX(-50%)}}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,var(--hero) 30%,transparent 85%);z-index:1}
+
+/* the six sets */
+.set{padding:clamp(56px,9vw,128px) 0;scroll-margin-top:var(--bar-h)}
+.set .wrap{display:grid;gap:28px;align-items:center}
+.set .n{display:flex;align-items:center;gap:10px;font:600 15px var(--mono);margin-bottom:14px}
+.tick{width:30px;height:30px;border-radius:9px;border:1.5px solid currentColor;display:grid;place-items:center;transition:background .18s ease-out,border-color .18s ease-out,transform .18s cubic-bezier(.2,.9,.3,1.3)}
+.tick svg{width:16px;height:16px;opacity:0;transition:opacity .18s ease-out}
+.set.done .tick{background:var(--done);border-color:var(--done);color:#fff}
+.set.done .tick svg{opacity:1}
+.set.done .tick.pop{transform:scale(1.15)}
+.set h2{font-size:clamp(38px,7.2vw,96px);line-height:.95;letter-spacing:-.035em;font-weight:800;text-wrap:balance}
+.set p{font-size:clamp(18px,1.6vw,21px);max-width:32em;margin-top:18px}
+.set.coach{background:var(--blue);color:#fff}
+.set.coach .tick{border-color:#fff}
+.set.sheet{background:var(--paper)}
+.set.sheet p,.set.desk p{color:var(--ink-2)}
+.set.navy{background:var(--navy);color:#fff}
+.set.navy p{color:#dfe5fa}
+.set.navy .tick{border-color:#fff}
+.phones{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:540px;justify-self:center;width:100%}
+.p{border-radius:24px;overflow:hidden;box-shadow:var(--shadow)}
+.phones .p:last-child{transform:translateY(36px)}
+.wide{border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+figcaption{font-size:15px;font-weight:600;margin-top:12px}
+.set.desk figcaption,.set.sheet figcaption{color:var(--ink-2)}
+/* the logger's four kinds of set: a strip that scrolls sideways on a phone */
+.strip{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px var(--m) 20px;margin:0 calc(var(--m) * -1);scrollbar-width:thin}
+.strip figure{flex:0 0 64%;max-width:280px;scroll-snap-align:center}
+.one{max-width:300px;justify-self:center;width:100%}
+
+.also{padding:clamp(40px,6vw,80px) 0;border-top:1px solid var(--rule)}
+.also h2{font-size:clamp(22px,2.4vw,30px);letter-spacing:-.01em}
+.also ul{display:grid;gap:14px 40px;margin-top:18px;color:var(--ink-2);font-size:17px}
+.also li b{color:var(--ink)}
+.credit{margin-top:28px;font-size:17px;color:var(--ink-2);max-width:40em}
+.credit b{color:var(--ink)}
+footer{background:var(--navy);color:#fff;padding:36px 0 48px}
+footer nav{display:flex;flex-wrap:wrap;gap:12px 32px;font-size:18px}
+footer a{display:inline-block;padding:10px 0}
+footer a:hover{color:var(--sky)}
+footer p{margin:6px 0 0;color:#c9d2f2;font-size:16px}
+footer :focus-visible{outline-color:var(--sky)}
+
+.js [data-rise]{opacity:0;transform:translateY(26px)}
+.js [data-rise].in{opacity:1;transform:none;transition:opacity .6s ease-out,transform .6s cubic-bezier(.16,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){.row{animation:none}.js [data-rise]{opacity:1;transform:none}*,*::before,*::after{transition-duration:.01ms!important}}
+@media (min-width:820px){
+  .set .wrap{grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:clamp(32px,5vw,72px)}
+  .set .wrap.stack{grid-template-columns:1fr}
+  .set.flip .wrap > :first-child{order:2}
+  .strip{overflow:visible;margin:0;padding:0;gap:18px}
+  .strip figure{flex:1 1 0;max-width:none}
+  .also ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="wrap">
+  <div class="id">
+    <a href="#top" aria-label="PTrainr, top of page"><img src="img/logo.svg" width="34" height="34" alt=""></a>
+    <span><a class="name" href="#top">PTrainr</a><a class="by" href="../">TC6IDM</a></span>
+  </div>
+  <div class="sets" role="status"><b><span class="num" id="count">0</span> of 6 <span class="long">sets </span>done</b><div class="track"><i id="fill"></i></div></div>
+  <button class="toggle" type="button" id="toggle">Night</button>
+</div></header>
+
+<main id="main">
+<div class="hero" id="top"><div class="wrap">
+  <div class="wall" aria-hidden="true">
+    <div class="row" data-wall="client-today logger-strength nutrition-lower progress-lower messages-priya calendar-priya trainer-client client-workout-done"></div>
+    <div class="row" data-wall="trainer-today client-barcode logger-cardio client-exercises client-settings-appearance logger-mixed logger-strength-lower progress-priya"></div>
+  </div>
+  <h1>Written by the coach. <em>Done by you.</em></h1>
+  <p class="lede">PTrainr is a training app for coaches and the people they train. One plan, two sides of it, every set accounted for.</p>
+  <div class="cta">
+    <a class="btn" href="https://www.ptrainr.com">Open ptrainr.com</a>
+    <span class="soon">App Store: coming</span>
+    <span class="soon">Google Play: coming</span>
+  </div>
+  <div class="tags"><span>Web</span><span>Android</span><span>iOS</span><span>19 languages</span><span>Private pilot</span></div>
+</div></div>
+
+<section class="set coach" data-set><div class="wrap">
+  <div data-rise>
+    <p class="n"><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Set 1 of 6</p>
+    <h2>The coach writes it once.</h2>
+    <p>A workout is built from a library of exercises and assigned to one client or several. Every client gets a page: what is coming up, what was done, and each set they logged.</p>
+  </div>
+  <div class="wide" data-rise><img class="day" src="img/desk-trainer-client-day.webp" width="1600" height="956" alt="The coach's page for one client: next workouts on the left, finished ones on the right."><img class="night" src="img/desk-trainer-client-night.webp" width="1600" height="956" alt="The coach's page for one client, in the Night theme." loading="lazy"></div>
+</div></section>
+
+<section class="set desk" data-set><div class="wrap stack">
+  <div data-rise>
+    <p class="n"><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Set 2 of 6</p>
+    <h2>The client ticks it off, one-handed.</h2>
+    <p>Targets arrive filled in, in the coach's blue. A tick logs the set as written; a different number replaces it. Reps and weight, effort out of ten, timed intervals, holds against a countdown: each kind of exercise gets the fields it needs and no others.</p>
+  </div>
+  <div class="strip" data-rise>
+    <figure><div class="p"><img class="day" src="img/phone-logger-strength-day.webp" width="640" height="1298" alt="Back squat, five sets of five at 93.5 kg: three ticked green with an effort score beside each." loading="lazy"><img class="night" src="img/phone-logger-strength-night.webp" width="640" height="1298" alt="The same strength workout in the Night theme." loading="lazy"></div><figcaption>Reps, weight and effort</figcaption></figure>
+    <figure><div class="p"><img class="day" src="img/phone-logger-cardio-day.webp" width="640" height="1298" alt="Rowing intervals: six rounds of two minutes with distance and calories, three done." loading="lazy"><img class="night" src="img/phone-logger-cardio-night.webp" width="640" height="1298" alt="Rowing intervals in the Night theme." loading="lazy"></div><figcaption>Intervals with a countdown</figcaption></figure>
+    <figure><div class="p"><img class="day" src="img/phone-logger-mixed-day.webp" width="640" height="1298" alt="Kettlebell swings by reps and weight, then a plank held for 45 seconds against a timer." loading="lazy"><img class="night" src="img/phone-logger-mixed-night.webp" width="640" height="1298" alt="Kettlebell swings and a timed plank in the Night theme." loading="lazy"></div><figcaption>Swings, then a timed hold</figcaption></figure>
+    <figure><div class="p"><img class="day" src="img/phone-client-workout-done-day.webp" width="640" height="1298" alt="A finished workout: every set with what was done beside what was prescribed." loading="lazy"><img class="night" src="img/phone-client-workout-done-night.webp" width="640" height="1298" alt="A finished workout in the Night theme." loading="lazy"></div><figcaption>The finished sheet</figcaption></figure>
+  </div>
+</div></section>
+
+<section class="set sheet flip" data-set><div class="wrap">
+  <div data-rise>
+    <p class="n"><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Set 3 of 6</p>
+    <h2>Scan it, and it is logged.</h2>
+    <p>Food goes in by search, by typing what you ate, or by pointing the camera at a barcode. The day's calories, protein and carbs add up above the meals, against the targets a coach can set.</p>
+  </div>
+  <div class="phones" data-rise>
+    <div class="p"><img class="day" src="img/phone-client-barcode-day.webp" width="640" height="1298" alt="The barcode scanner: start the camera, scan a photo, or type the number." loading="lazy"><img class="night" src="img/phone-client-barcode-night.webp" width="640" height="1298" alt="The barcode scanner in the Night theme." loading="lazy"></div>
+    <div class="p"><img class="day" src="img/phone-nutrition-lower-day.webp" width="640" height="1298" alt="A day of nutrition: 980 kcal, 51 g protein, 118 g carbs, and the meal that made them." loading="lazy"><img class="night" src="img/phone-nutrition-lower-night.webp" width="640" height="1298" alt="A day of nutrition in the Night theme." loading="lazy"></div>
+  </div>
+</div></section>
+
+<section class="set desk" data-set><div class="wrap">
+  <div data-rise>
+    <p class="n"><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Set 4 of 6</p>
+    <h2>Progress you can see.</h2>
+    <p>Weight, waist, body fat and any measurement a client adds, each charted over time in the unit it was entered in. A reminder can ask for the next one.</p>
+  </div>
+  <div class="phones" data-rise>
+    <div class="p"><img class="day" src="img/phone-progress-lower-day.webp" width="640" height="1298" alt="A weight chart falling from 68.1 to 67.1 kg over five entries." loading="lazy"><img class="night" src="img/phone-progress-lower-night.webp" width="640" height="1298" alt="The weight chart in the Night theme." loading="lazy"></div>
+    <div class="p"><img class="day" src="img/phone-client-today-day.webp" width="640" height="1298" alt="Today: the next workout, the week, and workouts done." loading="lazy"><img class="night" src="img/phone-client-today-night.webp" width="640" height="1298" alt="Today in the Night theme." loading="lazy"></div>
+  </div>
+</div></section>
+
+<section class="set navy flip" data-set><div class="wrap">
+  <div data-rise>
+    <p class="n"><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Set 5 of 6</p>
+    <h2>A direct line to your coach.</h2>
+    <p>One conversation between a client and their coach, with photos and PDFs, and nobody else in it. Questions about Thursday's session get answered where the session lives.</p>
+  </div>
+  <div class="one p" data-rise><img class="day" src="img/phone-messages-priya-day.webp" width="640" height="1298" alt="A chat between a client and her coach about the week's sessions." loading="lazy"><img class="night" src="img/phone-messages-priya-night.webp" width="640" height="1298" alt="The chat in the Night theme." loading="lazy"></div>
+</div></section>
+
+<section class="set sheet" data-set><div class="wrap">
+  <div data-rise>
+    <p class="n"><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Set 6 of 6</p>
+    <h2>The whole month on one page.</h2>
+    <p>Every assigned workout on the day it is due, done ones marked. Subscribe once and the schedule also shows up in Google or Apple Calendar.</p>
+  </div>
+  <div class="phones" data-rise>
+    <div class="p"><img class="day" src="img/phone-client-calendar-day.webp" width="640" height="1298" alt="November on a phone: a dot on each day with a workout, green once it is done." loading="lazy"><img class="night" src="img/phone-client-calendar-night.webp" width="640" height="1298" alt="The calendar in the Night theme." loading="lazy"></div>
+    <div class="p"><img class="day" src="img/phone-calendar-priya-day.webp" width="640" height="1298" alt="Another client's month: five workouts, three completed." loading="lazy"><img class="night" src="img/phone-calendar-priya-night.webp" width="640" height="1298" alt="Another client's month in the Night theme." loading="lazy"></div>
+  </div>
+</div></section>
+
+<section class="also"><div class="wrap">
+  <h2>Also in the app</h2>
+  <ul>
+    <li><b>The same screens everywhere.</b> The website, the Android app and the iOS app match, screen for screen.</li>
+    <li><b>Day, Night and five colours.</b> It follows the phone, or the person.</li>
+    <li><b>19 languages,</b> two of them right to left.</li>
+    <li><b>Private by default.</b> A coach sees meals and measurements only while the client shares them.</li>
+    <li><b>Works with no signal.</b> Sets and meals logged offline go up when the phone is back online.</li>
+    <li><b>Passkeys and two-factor sign-in.</b></li>
+  </ul>
+  <p class="credit">Built by <b>TC6IDM</b> and <b>Bora</b>, alongside Claude Code. PTrainr is in a private pilot. Every screen on this page is the real app signed in to a demo account: the people and their numbers are invented.</p>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <nav aria-label="Elsewhere"><a href="../">Back to the portfolio</a><a href="https://github.com/TC6IDM">GitHub: TC6IDM</a></nav>
+  <p>The project's source is private.</p>
+</div></footer>
+
+<script>
+document.documentElement.classList.add('js');
+(function(){
+  var root=document.documentElement,rm=matchMedia('(prefers-reduced-motion: reduce)');
+  /* Day and Night: follows the device until pressed */
+  var toggle=document.getElementById('toggle');
+  function dark(){return root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;}
+  function label(){toggle.textContent=dark()?'Day':'Night';toggle.setAttribute('aria-label','Switch to the '+(dark()?'Day':'Night')+' theme');}
+  label(); toggle.addEventListener('click',function(){root.dataset.theme=dark()?'light':'dark';label();});
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',label);
+
+  /* the wall: each row's screens twice over so the drift loops without a seam, in both themes */
+  [].forEach.call(document.querySelectorAll('[data-wall]'),function(row){
+    var names=row.dataset.wall.split(' ');
+    row.innerHTML=names.concat(names).map(function(n){
+      return '<img class="day" src="img/phone-'+n+'-day.webp" width="640" height="1298" alt="" loading="lazy"><img class="night" src="img/phone-'+n+'-night.webp" width="640" height="1298" alt="" loading="lazy">';
+    }).join('');
+  });
+
+  /* entrances */
+  var rio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');rio.unobserve(e.target);}});},{rootMargin:'0px 0px -8% 0px'});
+  [].forEach.call(document.querySelectorAll('[data-rise]'),function(el){rio.observe(el);});
+
+  /* a set is done once its end has been on screen */
+  var sets=[].slice.call(document.querySelectorAll('[data-set]')),count=document.getElementById('count'),fill=document.getElementById('fill');
+  function update(){var n=sets.filter(function(s){return s.classList.contains('done');}).length;count.textContent=n;fill.style.transform='scaleX('+n/sets.length+')';fill.classList.toggle('all',n===sets.length);}
+  var sio=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;
+    var set=e.target.parentNode;set.classList.add('done');
+    var tick=set.querySelector('.tick');if(!rm.matches){tick.classList.add('pop');setTimeout(function(){tick.classList.remove('pop');},180);}
+    sio.unobserve(e.target);update();});});
+  sets.forEach(function(set){var mark=document.createElement('span');mark.style.cssText='display:block;height:1px;margin-top:-1px';set.appendChild(mark);sio.observe(mark);});
+  update();
+})();
+</script>
+</body>
+</html>
