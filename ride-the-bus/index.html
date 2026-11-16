@@ -45,7 +45,13 @@ a:hover{color:var(--accent)}
 /* the route: five stops and a bus that rides them with the scroll */
 .route{position:sticky;top:0;z-index:6;background:var(--bar);border-bottom:1px solid var(--bar-edge)}
 .route .wrap{display:flex;align-items:stretch;gap:clamp(10px,3vw,40px);height:var(--bar-h)}
-.route .home{display:flex;align-items:center;font-weight:800;text-decoration:none;white-space:nowrap;padding:0 2px}
+.route .home{display:flex;align-items:center;gap:10px;white-space:nowrap;padding:0 2px}
+.route .home img{width:40px;height:40px;flex:none}
+.route .home span{display:grid;line-height:1.15}
+.route .home b{font-weight:800}
+.route .home a{font-size:13px;font-weight:600;color:var(--ink-2);text-decoration:none;padding:2px 0}
+.route .home a:hover{color:var(--ink)}
+@media (max-width:700px){.route .home b{display:none}}
 .line{position:relative;flex:1;min-width:0}
 .line ol{position:relative;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:100%}
 .line ol::before{content:"";position:absolute;left:10%;right:10%;top:calc(var(--rail-y) - 1px);height:3px;background:var(--rail)}
@@ -59,7 +65,7 @@ a:hover{color:var(--accent)}
 .bus{position:absolute;left:0;top:calc(var(--rail-y) - 17px);width:30px;height:16px;transform:translateX(var(--x,-100px));will-change:transform;pointer-events:none}
 .bus .b{fill:var(--bus)}.bus .w{fill:var(--bus-win)}
 @media (max-width:900px){.line .full{display:none}.line .short{display:block}.line a{font-size:13px}}
-@media (max-width:420px){.route .home{font-size:15px}}
+
 
 /* destination blinds: each section's sign */
 .sign{display:inline-block;background:var(--sign);color:var(--sign-ink);padding:.1em .3em .16em;overflow:hidden;max-width:100%}
@@ -203,7 +209,7 @@ footer p{margin:6px 0 0;color:var(--field-2);font-size:16px}
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="route"><div class="wrap">
-  <a class="home" href="../">TC6IDM</a>
+  <div class="home"><img src="media/takeover-chip.webp" width="40" height="40" alt=""><span><b>Takeover Casino</b><a href="../">TC6IDM</a></span></div>
   <nav class="line" aria-label="Stops on this page">
     <ol>
       <li><a href="#top"><span class="full">Ride The Bus</span><span class="short">Start</span></a></li>
