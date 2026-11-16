@@ -1,0 +1,16 @@
+# Third-party Claude skills and agents, copied in from Ride-The-Bus-monorepo so a
+# session here has the same design toolkit. They are other people's work under
+# their own licences: this repo is PUBLIC, so they stay local and untracked.
+# Only this repo's own skill (site-design) is committed.
+.claude/skills/*
+!.claude/skills/site-design/
+.claude/agents/impeccable-*.md
+.claude/settings.local.json
+
+# Browser automation logs carry local URLs and session details.
+.playwright-cli/
+.shots/
+node_modules/
+
+# Raw, unedited captures: only the encoded files under assets/ are published.
+captures-raw/

@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ride The Bus, direction A: the case file</title>
+<meta name="description" content="Ride The Bus: a four-guess card game for the Stake Engine platform, maths and client built solo by TC6IDM. In development.">
+<link rel="icon" href="data:,">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&family=Overpass:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#f4f1eb; --ground-2:#e9e4da; --ink:#17120f; --ink-2:#4a4038;
+  --accent:#a80828; --accent-ink:#fbf6ee; --field:#78061e;
+  --gold:#8a6410;
+  --sc:#1f8a4f; --cl:#9a6c00; --ls:#b4541a; --hs:#b8232f; --tr:#7d4f93;
+  --m:clamp(16px,4vw,56px); --max:1320px;
+  --display:'Big Shoulders Display','Overpass',sans-serif; --body:'Overpass',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --ground:#15110e; --ground-2:#211a15; --ink:#ece6da; --ink-2:#bdb3a4;
+  --accent:#f5d78c; --accent-ink:#1a120c; --field:#5c0517; --gold:#f5d78c;
+  --sc:#3ddc84; --cl:#ffc93c; --ls:#ff9240; --hs:#ff6b6b; --tr:#c39ad6;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 clamp(17px,1.05vw + 12px,20px)/1.55 var(--body);font-variant-numeric:tabular-nums}
+img,video{display:block;max-width:100%;height:auto}
+a{color:inherit;text-decoration-thickness:2px;text-underline-offset:3px}
+a:hover{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--m)}
+.skip{position:absolute;left:-9999px}.skip:focus{left:var(--m);top:8px;background:var(--ink);color:var(--ground);padding:8px 12px;z-index:9}
+
+/* bar */
+header.bar{position:sticky;top:0;z-index:5;background:var(--ground)}
+header.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;height:60px}
+.wordmark{font-weight:800;text-decoration:none;letter-spacing:-.01em}
+header nav{display:flex;gap:clamp(14px,2vw,32px);font-size:16px}
+header nav a{text-decoration:none;padding:8px 0}
+header nav a:hover{text-decoration:underline}
+@media (max-width:720px){header nav a:not(.keep){display:none}}
+
+/* hero */
+.hero{padding-top:clamp(32px,6vw,88px)}
+.hero h1{font:800 clamp(72px,15.5vw,236px)/.84 var(--display);letter-spacing:-.035em;margin:0;color:var(--ink)}
+.hero .lede{display:grid;grid-template-columns:1fr;gap:12px 48px;margin:clamp(20px,3vw,40px) 0 clamp(28px,4vw,56px)}
+.hero .lede p{margin:0;max-width:30ch;font-size:clamp(22px,1.6vw + 12px,34px);line-height:1.2;font-weight:600;letter-spacing:-.01em}
+.hero .lede p.status{font-size:17px;font-weight:400;color:var(--ink-2);max-width:36ch;align-self:end;line-height:1.5}
+@media (min-width:900px){.hero .lede{grid-template-columns:1.4fr 1fr}}
+.reel{margin:0;background:#0b0907}
+.reel video{width:100%;aspect-ratio:16/9;object-fit:cover}
+figcaption{font-size:15px;line-height:1.45;color:var(--ink-2);padding-top:10px;max-width:70ch}
+.hero figcaption{padding-left:var(--m);padding-right:var(--m);max-width:var(--max);margin:0 auto}
+
+section{padding:clamp(96px,12vw,200px) 0 0}
+h2{font:800 clamp(30px,2.6vw + 16px,60px)/1.02 var(--body);letter-spacing:-.03em;margin:0 0 24px;max-width:18ch}
+.cols{display:grid;gap:32px 64px}
+@media (min-width:900px){.cols{grid-template-columns:5fr 7fr}}
+.prose p{margin:0 0 1em;max-width:60ch}
+
+/* plays */
+ol.guesses{list-style:none;margin:0;padding:0;counter-reset:none}
+ol.guesses li{display:grid;grid-template-columns:7.5em 1fr;gap:4px 20px;padding:18px 0;align-items:baseline}
+ol.guesses li+li{border-top:3px solid var(--ground-2)}
+ol.guesses b{font:800 clamp(24px,1.2vw + 14px,34px)/1 var(--display);letter-spacing:-.01em}
+ol.guesses span{color:var(--ink)}
+@media (max-width:520px){ol.guesses li{grid-template-columns:1fr}}
+.pair{display:grid;gap:24px;margin-top:clamp(40px,5vw,72px)}
+@media (min-width:900px){.pair{grid-template-columns:7fr 5fr;align-items:start}}
+.pair figure{margin:0}
+
+/* maths */
+.formula{margin:clamp(40px,5vw,72px) calc(var(--m) * -1) 0;background:var(--ground-2);padding:clamp(32px,5vw,72px) var(--m)}
+.formula p.eq{font:600 clamp(26px,4.6vw,76px)/1.1 var(--body);letter-spacing:-.02em;margin:0;white-space:nowrap;overflow-x:auto}
+.formula i{font-style:italic;font-weight:600}
+.formula dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px 40px;margin:28px 0 0;font-size:17px}
+.formula dt{font-weight:800}.formula dd{margin:0;color:var(--ink-2)}
+.figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:40px 48px;margin:clamp(48px,6vw,96px) 0 0;padding:0}
+.figures div{margin:0}
+.figures dt{font:800 clamp(64px,7vw,120px)/.9 var(--display);letter-spacing:-.03em;color:var(--accent)}
+.figures dd{margin:10px 0 0;max-width:34ch}
+table.fam{width:100%;border-collapse:collapse;margin-top:clamp(48px,6vw,96px);font-size:17px}
+table.fam caption{text-align:left;font-weight:800;font-size:clamp(22px,1vw + 14px,28px);padding-bottom:16px;letter-spacing:-.01em}
+table.fam th,table.fam td{text-align:left;padding:14px 16px 14px 0;border-top:2px solid var(--ground-2);vertical-align:top}
+table.fam thead th{border-top:0;font-weight:600;color:var(--ink-2);font-size:15px}
+table.fam td.max{text-align:right;font:800 clamp(22px,1.4vw + 12px,32px)/1 var(--display);white-space:nowrap;padding-right:0}
+table.fam th.max{text-align:right;padding-right:0}
+table.fam th[scope=row]{font-weight:800;white-space:nowrap}
+table.fam th[scope=row]::before{content:"";display:inline-block;width:.7em;height:.7em;margin-right:.5em;background:var(--c);vertical-align:-.02em}
+@media (max-width:640px){
+  table.fam thead{display:none}
+  table.fam tr{display:grid;grid-template-columns:1fr auto;border-top:2px solid var(--ground-2);padding:12px 0}
+  table.fam th,table.fam td{border:0;padding:4px 0}
+  table.fam td.rule{grid-column:1/-1;order:3}
+}
+
+/* craft */
+.lead-fig{margin:clamp(40px,5vw,64px) 0 0}
+.lead-fig video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#0b0907}
+.duo{display:grid;gap:40px 48px;margin-top:clamp(56px,7vw,112px)}
+@media (min-width:900px){.duo{grid-template-columns:8fr 4fr;align-items:end}}
+.duo figure{margin:0}
+.duo video{width:100%;background:#0b0907}
+.duo .phone video{aspect-ratio:390/844;max-height:78vh;width:auto;margin:0 auto}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:32px 56px;margin:clamp(56px,7vw,112px) 0 0;padding:0;list-style:none}
+.facts b{display:block;font-size:clamp(22px,1vw + 14px,28px);font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+.room{display:grid;gap:24px 48px;margin-top:clamp(56px,7vw,112px)}
+@media (min-width:900px){.room{grid-template-columns:5fr 7fr;align-items:center}}
+.room figure{margin:0}
+
+/* built */
+.built{margin-top:clamp(96px,12vw,200px);background:var(--field);color:#fbf3e6;padding:clamp(72px,9vw,160px) 0}
+.built h2{color:#fbf3e6}
+.built ul{list-style:none;padding:0;margin:32px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:28px 56px}
+.built li b{display:block;font-size:22px;font-weight:800}
+.built p.state{font:800 clamp(28px,2vw + 16px,48px)/1.1 var(--body);letter-spacing:-.02em;margin:clamp(48px,6vw,88px) 0 0;max-width:22ch}
+.built a{color:#fbf3e6}
+
+footer{padding:clamp(56px,7vw,112px) 0 40px}
+footer .name{font:800 clamp(56px,13.5vw,212px)/.84 var(--display);letter-spacing:-.035em;margin:0 0 28px}
+footer nav{display:flex;flex-wrap:wrap;gap:12px 32px;font-size:18px}
+footer nav a{padding:6px 0}
+
+/* entrance: content is visible without script; script opts in */
+.js [data-rise]{opacity:0;transform:translateY(24px);transition:opacity .48s cubic-bezier(.2,.7,.2,1) var(--d,0ms),transform .48s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+.js [data-rise].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js [data-rise]{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar"><div class="wrap">
+  <a class="wordmark" href="../../">TC6IDM</a>
+  <nav aria-label="On this page"><a href="#plays">How it plays</a><a href="#maths" class="keep">The maths</a><a href="#craft">The craft</a><a href="#built" class="keep">How it was built</a></nav>
+</div></header>
+
+<main id="main">
+<div class="hero">
+  <div class="wrap">
+    <h1>Ride The Bus</h1>
+    <div class="lede">
+      <p>A four-guess card game for the Stake Engine platform. The maths and the client, built by one person.</p>
+      <p class="status">In development, not yet released. Every frame on this page is captured from the running game.</p>
+    </div>
+  </div>
+  <figure class="reel">
+    <video data-auto muted playsinline loop preload="metadata" poster="../../ride-the-bus/media/round-classic-poster.webp" aria-describedby="cap-hero">
+      <source src="../../ride-the-bus/media/round-classic.webm" type="video/webm">
+      <source src="../../ride-the-bus/media/round-classic.mp4" type="video/mp4">
+    </video>
+  </figure>
+  <figcaption id="cap-hero">A Classic round: four cards turn, the win takeover counts to $17.20, and the hand flies back to the board. Silent, 12 seconds.</figcaption>
+</div>
+
+<section id="plays" aria-labelledby="h-plays"><div class="wrap">
+  <div class="cols">
+    <div data-rise>
+      <h2 id="h-plays">Four guesses, made before the deal</h2>
+      <div class="prose"><p>The player picks all four guesses, then the cards turn one by one. A right guess carries the ride on; a wrong one ends it, keeping a share from the second card on.</p>
+      <p>Each combination of guesses is its own bet mode, with its own published table of outcomes.</p></div>
+    </div>
+    <ol class="guesses" data-rise style="--d:80ms">
+      <li><b>Colour</b><span>Red or black.</span></li>
+      <li><b>Higher or lower</b><span>Than the first card, or equal to it.</span></li>
+      <li><b>Inside or outside</b><span>Of the first two cards, or equal to one of them.</span></li>
+      <li><b>Suit</b><span>One of four.</span></li>
+    </ol>
+  </div>
+  <div class="pair">
+    <figure data-rise><img src="../../ride-the-bus/media/how-to-play.webp" width="1280" height="720" loading="lazy" alt="The game's help screen: the four guess squares with a short rule beside each."><figcaption>The help screen a player sees first.</figcaption></figure>
+    <figure data-rise style="--d:80ms"><img src="../../ride-the-bus/media/mode-picker.webp" width="1280" height="720" loading="lazy" alt="The mode picker: five game families, each with a seven-bolt volatility meter."><figcaption>The mode picker. Five families, each rated on one seven-step volatility ruler.</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="maths" aria-labelledby="h-maths"><div class="wrap">
+  <div class="cols">
+    <h2 id="h-maths" data-rise>Every multiplier comes from one equation</h2>
+    <div class="prose" data-rise style="--d:80ms">
+      <p>A guess that is right with chance <i>p</i> is priced so the expected change across the card is the same fixed decay, whether the guess was a coin flip or a long shot. No pick is worth more than another in expectation, and four cards compound to the target return.</p>
+      <p>A Python package solves every stage, generates the published books and reweights each mode's table so its recorded return lands on 96%.</p>
+    </div>
+  </div>
+  <div class="formula" data-rise>
+    <p class="eq" aria-label="p times m, plus one minus p times r, equals d"><i>p</i> · <i>m</i> + (1 − <i>p</i>) · <i>r</i> = <i>d</i></p>
+    <dl>
+      <div><dt><i>p</i></dt><dd>the chance the guess is right</dd></div>
+      <div><dt><i>m</i></dt><dd>the multiplier a right guess applies, solved for</dd></div>
+      <div><dt><i>r</i></dt><dd>what a miss keeps: nothing on card one, then 30% on Classic</dd></div>
+      <div><dt><i>d</i></dt><dd>the decay per card; four of them make 0.99</dd></div>
+    </dl>
+  </div>
+  <dl class="figures">
+    <div data-rise><dt>257</dt><dd>published modes: four families of 64 playable combinations, plus Three of a Kind. Equal then Inside cannot happen, so 64, not 72.</dd></div>
+    <div data-rise style="--d:70ms"><dt>96%</dt><dd>recorded return, pinned on every one of the 257.</dd></div>
+    <div data-rise style="--d:140ms"><dt>0.1×</dt><dd>the step every payout floors to. Never rounded: rounding a fair 1.96× up to 2.0× would erase the margin.</dd></div>
+  </dl>
+  <div class="prose" style="margin-top:48px" data-rise><p>The client's test suite replays every published book through its own arithmetic, so the figure on the screen and the figure the server settles can never disagree.</p></div>
+
+  <table class="fam" data-rise>
+    <caption>Five families, calmest first</caption>
+    <thead><tr><th scope="col">Family</th><th scope="col">What changes</th><th scope="col" class="max">Highest multiplier</th></tr></thead>
+    <tbody>
+      <tr style="--c:var(--sc)"><th scope="row">Second Chance</th><td class="rule">The first miss from card two keeps 50% and the ride goes on.</td><td class="max">585.2×</td></tr>
+      <tr style="--c:var(--cl)"><th scope="row">Classic</th><td class="rule">The base rules.</td><td class="max">1,354.2×</td></tr>
+      <tr style="--c:var(--ls)"><th scope="row">Last Stop</th><td class="rule">A right suit draws a ticket from a stack, 2× to 10×.</td><td class="max">4,301.9×</td></tr>
+      <tr style="--c:var(--hs)"><th scope="row">High Stakes</th><td class="rule">A miss keeps 15% instead of 30%.</td><td class="max">2,237.3×</td></tr>
+      <tr style="--c:var(--tr)"><th scope="row">Three of a Kind</th><td class="rule">Three cards from a twelve-card deck must share a rank. Costs 250× the base bet.</td><td class="max">4,583.3×</td></tr>
+    </tbody>
+  </table>
+  <figure class="lead-fig" data-rise>
+    <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/last-stop-ticket-poster.webp" aria-describedby="cap-ls">
+      <source src="../../ride-the-bus/media/last-stop-ticket.webm" type="video/webm"><source src="../../ride-the-bus/media/last-stop-ticket.mp4" type="video/mp4">
+    </video>
+    <figcaption id="cap-ls">Last Stop: the right suit draws a 10× ticket, laid over the fanned hand.</figcaption>
+  </figure>
+</div></section>
+
+<section id="craft" aria-labelledby="h-craft"><div class="wrap">
+  <div class="cols">
+    <h2 id="h-craft" data-rise>The client, frame by frame</h2>
+    <div class="prose" data-rise style="--d:80ms"><p>A Svelte 5 client that replays each round from its book. The win takeover is a departures board: the tier rolls like a destination blind through Big, Huge, Mega, Epic and Max, and a bus rides the route underneath to the stop reached.</p></div>
+  </div>
+  <figure class="lead-fig" data-rise>
+    <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/takeover-max-poster.webp" aria-describedby="cap-max">
+      <source src="../../ride-the-bus/media/takeover-max.webm" type="video/webm"><source src="../../ride-the-bus/media/takeover-max.mp4" type="video/mp4">
+    </video>
+    <figcaption id="cap-max">The full ladder on a Classic ride, Big to Max, the split-flap figure counting to $1,354.20.</figcaption>
+  </figure>
+  <div class="duo">
+    <figure data-rise>
+      <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/hold-peel-poster.webp" aria-describedby="cap-peel" style="aspect-ratio:16/9;object-fit:cover">
+        <source src="../../ride-the-bus/media/hold-peel.webm" type="video/webm"><source src="../../ride-the-bus/media/hold-peel.mp4" type="video/mp4">
+      </video>
+      <figcaption id="cap-peel">On a ride with an Equal pick the last card is held, then peeled from the corner before it turns.</figcaption>
+    </figure>
+    <figure class="phone" data-rise style="--d:80ms">
+      <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/phone-round-poster.webp" aria-describedby="cap-phone">
+        <source src="../../ride-the-bus/media/phone-round.webm" type="video/webm"><source src="../../ride-the-bus/media/phone-round.mp4" type="video/mp4">
+      </video>
+      <figcaption id="cap-phone">A round on a phone, which has a layout of its own.</figcaption>
+    </figure>
+  </div>
+  <div class="room">
+    <div class="prose" data-rise><h3 style="font-size:clamp(22px,1vw + 14px,28px);margin:0 0 12px;letter-spacing:-.01em">The back room</h3><p>Two painted characters share the table's room: the Floorman, standing, and the Boss in the corner with his cigar. A rare win moves them, and they never react before the cards show it. The lights come up as the help screen closes.</p></div>
+    <figure data-rise style="--d:80ms">
+      <video data-auto muted playsinline loop preload="none" poster="../../ride-the-bus/media/room-lights-poster.webp" aria-describedby="cap-room" style="width:100%;aspect-ratio:16/9;object-fit:cover;background:#0b0907">
+        <source src="../../ride-the-bus/media/room-lights.webm" type="video/webm"><source src="../../ride-the-bus/media/room-lights.mp4" type="video/mp4">
+      </video>
+      <figcaption id="cap-room">Continue on the help screen: the room lights up and the control bar slides in.</figcaption>
+    </figure>
+  </div>
+  <ul class="facts">
+    <li data-rise><b>17 languages</b>Every string translated, Arabic laid out right to left, every family name fitted to its sign.</li>
+    <li data-rise style="--d:70ms"><b>Sound written in code</b>Every sound effect is synthesised in the browser through one audio graph. One produced music bed loops under them.</li>
+    <li data-rise style="--d:140ms"><b>Seven target screens</b>From a 320px phone to a desktop window, every layout change checked at all seven.</li>
+  </ul>
+</div></section>
+
+<section id="built" class="built" aria-labelledby="h-built"><div class="wrap">
+  <h2 id="h-built" data-rise>How it was built</h2>
+  <ul>
+    <li data-rise><b>Maths in Python</b>A package that solves the prices and generates every mode's published book.</li>
+    <li data-rise style="--d:70ms"><b>Client in Svelte 5</b>Turns each book into the round on screen; its payout arithmetic is checked against every book.</li>
+    <li data-rise style="--d:140ms"><b>About 1,000 tests</b>Including a parity suite that replays every published mode.</li>
+    <li data-rise style="--d:210ms"><b>Solo</b>One developer, with Claude Code as the pair. Built for the Stake Engine platform.</li>
+  </ul>
+  <p class="state" data-rise>In development, not yet released.</p>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p class="name" aria-hidden="true">Ride The Bus</p>
+  <nav aria-label="Elsewhere"><a href="../../">Back to the portfolio</a><a href="https://github.com/TC6IDM">GitHub: TC6IDM</a></nav>
+</div></footer>
+
+<script>
+document.documentElement.classList.add('js');
+(function(){
+  var rm=matchMedia('(prefers-reduced-motion: reduce)');
+  var vids=[].slice.call(document.querySelectorAll('video[data-auto]'));
+  function mode(){vids.forEach(function(v){if(rm.matches){v.controls=true;v.pause();}else{v.controls=false;}});}
+  mode(); rm.addEventListener('change',mode);
+  var vio=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;if(rm.matches)return;
+    if(e.isIntersecting){if(v.preload==='none')v.preload='auto';var p=v.play();if(p)p.catch(function(){});}else v.pause();});},{threshold:.35});
+  vids.forEach(function(v){vio.observe(v);});
+  var rio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');rio.unobserve(e.target);}});},{rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('[data-rise]').forEach(function(el){rio.observe(el);});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ride The Bus page directions</title>
+<link rel="icon" href="data:,">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Overpass:wght@400;800&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#f2f0eb;--step:#e4e0d7;--ink:#17120f;--ink-2:#4a4038;--pick:#a80828;--pick-ink:#fff}
+@media (prefers-color-scheme:dark){:root{--ground:#15110e;--step:#231b15;--ink:#ece6da;--ink-2:#bdb3a4;--pick:#f5d78c;--pick-ink:#15110e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 18px/1.5 'Overpass',system-ui,sans-serif}
+.wrap{max-width:1360px;margin:0 auto;padding:clamp(24px,4vw,56px) clamp(16px,4vw,56px) 64px}
+h1{font:900 clamp(48px,7vw,104px)/.9 'Big Shoulders Display',sans-serif;letter-spacing:-.02em;margin:0}
+.intro{max-width:60ch;margin:16px 0 40px}
+.grid{display:grid;gap:28px;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))}
+article{background:var(--step);display:flex;flex-direction:column}
+article img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top}
+article div{padding:20px 22px 24px;display:flex;flex-direction:column;gap:10px;flex:1}
+h2{font-size:26px;line-height:1.1;margin:0;letter-spacing:-.01em}
+article p{margin:0}
+.pick{align-self:flex-start;background:var(--pick);color:var(--pick-ink);font-weight:800;padding:4px 10px;font-size:16px}
+a.open{margin-top:auto;align-self:flex-start;font-weight:800;color:var(--ink);text-decoration-thickness:2px;text-underline-offset:4px;padding:8px 0}
+a:focus-visible{outline:3px solid var(--pick);outline-offset:3px}
+.foot{margin-top:40px;color:var(--ink-2)}
+.foot a{color:inherit}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Ride The Bus: three directions</h1>
+  <p class="intro">Three playable mock-ups for the portfolio's <code>/ride-the-bus/</code> page, with the same content in each and the real captures throughout. Open each at phone and desktop width; the reasoning, weights and open questions are in NOTES.md beside this page.</p>
+  <div class="grid">
+    <article>
+      <img src="shots/a-1280.png" width="1280" height="800" alt="Direction A at 1280 wide: a very large black title on a pale page, a sentence beside the status line, and the round footage below.">
+      <div><h2>A. The case file</h2>
+      <p>An editorial long read on a quiet paper page. The footage is evidence with a caption under every clip, and the maths is set as a formula and a real table.</p>
+      <a class="open" href="a.html">Open direction A</a></div>
+    </article>
+    <article>
+      <img src="shots/b-1280.png" width="1280" height="800" alt="Direction B at 1280 wide: a route line with five stops and a small bus across the top, and the game's name lettered in gold on a dark sign.">
+      <div><h2>B. The route</h2>
+      <p>The page is the game's back room. The navigation is the takeover's route line with a bus riding it as you scroll; each heading is a destination blind and the families are a departures board.</p>
+      <a class="open" href="b.html">Open direction B</a></div>
+    </article>
+    <article>
+      <img src="shots/c-1280.png" width="1280" height="800" alt="Direction C at 1280 wide: the title stacked on the left on deep green, the round footage on the right.">
+      <div><span class="pick">My pick</span><h2>C. The equation</h2>
+      <p>The footage gets the first screen; the second is a price solver on the table's felt. Drag the chance of a guess and watch the equation solve its multiplier while the expected value stays put.</p>
+      <a class="open" href="c.html">Open direction C</a></div>
+    </article>
+  </div>
+  <p class="foot">Mock-ups only, nothing is built. Every image of the game is a capture of the running game; the route line, the bus glyph and the solver's chart are drawn for the site.</p>
+</main>
+</body>
+</html>
