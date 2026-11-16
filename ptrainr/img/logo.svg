@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 -7 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">PTrainr</title>
+  <desc id="desc">Interlocking P monogram in electric blue on a transparent background.</desc>
+  <g fill="#3659E3" transform="translate(16 16)">
+    <path d="M93 0 H191 C201 0 208 4 213 13 L250 75 C256 85 256 91 250 101 L216 158 C211 166 204 170 194 170 H183 C175 170 170 173 166 180 L154 201 C151 207 146 210 139 210 H118 V126 H160 C185 126 196 112 196 87 V76 C196 59 190 51 175 51 H57 C55 51 54 49 56 46 L78 10 C82 3 86 0 93 0 Z"/>
+    <path d="M65 76 H171 C168 96 154 108 135 108 H119 C104 108 94 115 85 130 L40 202 C37 207 34 207 31 202 L4 163 C0 157 0 153 4 146 L36 95 C43 83 52 76 65 76 Z"/>
+  </g>
+</svg>

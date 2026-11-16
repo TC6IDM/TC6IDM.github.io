@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PTrainr · direction C, the wall of screens</title>
+<meta name="description" content="PTrainr: a training app for coaches and their clients, on the web, Android and iOS.">
+<link rel="icon" href="../../ptrainr/img/logo.svg">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* Direction C: bold. The logo's navy, very large type, and the app's screens drifting past as a wall. */
+:root{--navy:#131E40;--blue:#3659E3;--sky:#9db1ff}
+body{background:var(--navy);color:#fff}
+.bar{position:absolute;inset:0 0 auto;display:flex;align-items:center;gap:12px;padding:14px 16px;z-index:3}
+.bar .mark{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:#fff;text-decoration:none;margin-right:auto}
+.bar .mark img{width:26px;height:26px;filter:brightness(0) invert(1)}
+.bar a.back{font-size:15px;color:#c9d2f2;text-decoration:none;padding:12px 6px}
+.theme-toggle{background:transparent;color:#fff;border-color:#ffffff55}
+.hero{position:relative;min-height:100svh;display:grid;align-content:end;overflow:hidden;padding:96px 16px 28px}
+.hero h1{font-size:clamp(52px,13.5vw,190px);line-height:.9;letter-spacing:-.04em;font-weight:800;position:relative;z-index:2;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--sky)}
+.hero p{position:relative;z-index:2;font-size:clamp(17px,1.8vw,22px);max-width:30em;margin-top:20px;color:#dfe5fa}
+.hero .tags{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;font:600 14px var(--mono)}
+.hero .tags span{border:1px solid #ffffff55;border-radius:999px;padding:6px 12px}
+/* the wall: two rows of real screens drifting in opposite directions, tilted, behind the type */
+.wall{position:absolute;inset:-6% -20% auto;z-index:1;transform:rotate(-8deg);opacity:.5;display:grid;gap:14px;pointer-events:none}
+.row{display:flex;gap:14px;width:max-content;animation:drift 70s linear infinite}
+.row:nth-child(2){animation-direction:reverse;animation-duration:90s}
+.row img{width:clamp(120px,15vw,210px);height:auto;border-radius:16px}
+@keyframes drift{to{transform:translateX(-50%)}}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,var(--navy) 22%,transparent 80%);z-index:1}
+section.block{padding:64px 16px}
+.inner{max-width:1200px;margin:0 auto;display:grid;gap:28px;align-items:center}
+.block h2{font-size:clamp(38px,7.4vw,96px);line-height:.95;letter-spacing:-.035em;font-weight:800;text-wrap:balance}
+.block p{font-size:clamp(17px,1.6vw,20px);max-width:32em;margin-top:18px}
+.block.coach{background:var(--blue);color:#fff}
+.block.client{background:var(--desk);color:var(--ink)}
+.block.client p{color:var(--ink-2)}
+.block.sheet{background:var(--paper);color:var(--ink)}
+.block.sheet p{color:var(--ink-2)}
+.phones{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;justify-self:center;width:100%}
+.phones .p{border-radius:24px;overflow:hidden;box-shadow:0 18px 50px #0b122b55}
+.phones .p:last-child{transform:translateY(36px)}
+.deskshot{border-radius:14px;overflow:hidden;box-shadow:0 18px 50px #0b122b55}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 18px;margin-top:8px}
+.big dd{font:800 clamp(64px,13vw,170px)/.85 var(--sans);letter-spacing:-.05em;color:var(--sky)}
+.big dt{font-size:15px;margin-top:10px;color:#dfe5fa;max-width:16em}
+.block.navy p{color:#dfe5fa}
+.end{padding:36px 16px 56px;display:flex;flex-wrap:wrap;gap:10px 24px;font-size:16px;max-width:1232px;margin:0 auto}
+.end a{color:#fff}
+.small{font-size:14px!important;opacity:.85}
+[data-reveal].pre{opacity:0;transform:translateY(28px)}
+[data-reveal].in{opacity:1;transform:none;transition:opacity .6s ease-out,transform .6s cubic-bezier(.16,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){.row{animation:none}}
+@media (min-width:768px){
+  .hero{padding:110px 40px 48px}
+  section.block{padding:120px 40px}
+  .inner{grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:56px}
+  .inner.one{grid-template-columns:1fr}
+  .block.flip .inner > :first-child{order:2}
+  .big{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="bar">
+    <a class="mark" href="#top"><img src="../../ptrainr/img/logo.svg" alt="">PTrainr</a>
+    <a class="back" href="../../">Portfolio</a>
+    <button class="theme-toggle" type="button">Show Night</button>
+  </div>
+  <div class="wall" aria-hidden="true">
+    <div class="row" data-wall="client-today logger-ticked nutrition-priya progress-priya messages-priya client-calendar trainer-client client-workout-done"></div>
+    <div class="row" data-wall="trainer-today client-barcode client-exercises client-settings-appearance logger-ticked client-today trainer-client progress-priya"></div>
+  </div>
+  <h1 id="top">Written by the coach. <em>Done by you.</em></h1>
+  <p>PTrainr is a training app for coaches and the people they train, on the web, Android and iOS. One plan, two sides of it, every set accounted for.</p>
+  <div class="tags"><span>Web</span><span>Android</span><span>iOS</span><span>19 languages</span><span>Private pilot</span></div>
+</header>
+
+<section class="block coach">
+  <div class="inner">
+    <div data-reveal>
+      <h2>The coach writes it once.</h2>
+      <p>A workout is built from a library of exercises and assigned to one client or several. Each client gets a page: what is coming up, what was done, every set they logged. Changing a workout later never rewrites what somebody already did.</p>
+    </div>
+    <div class="deskshot" data-reveal><img class="day" src="../../ptrainr/img/desk-trainer-client-day.webp" width="1600" height="956" alt="The coach's desktop page for one client." loading="lazy"><img class="night" src="../../ptrainr/img/desk-trainer-client-night.webp" width="1600" height="956" alt="The same page, Night." loading="lazy"></div>
+  </div>
+</section>
+
+<section class="block client flip">
+  <div class="inner">
+    <div data-reveal>
+      <h2>The client ticks it off, one-handed.</h2>
+      <p>Targets arrive filled in, in the coach's blue. A tick logs the set as written; a different number replaces it in graphite. Every set saves as it is ticked, and with no signal they wait on the phone and go up in order later.</p>
+    </div>
+    <div class="phones" data-reveal>
+      <div class="p"><img class="day" src="../../ptrainr/img/phone-logger-ticked-day.webp" width="640" height="1298" alt="The logger with three sets ticked." loading="lazy"><img class="night" src="../../ptrainr/img/phone-logger-ticked-night.webp" width="640" height="1298" alt="The logger, Night." loading="lazy"></div>
+      <div class="p"><img class="day" src="../../ptrainr/img/phone-client-workout-done-day.webp" width="640" height="1298" alt="A finished workout, set by set." loading="lazy"><img class="night" src="../../ptrainr/img/phone-client-workout-done-night.webp" width="640" height="1298" alt="A finished workout, Night." loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<section class="block sheet">
+  <div class="inner">
+    <div data-reveal>
+      <h2>Meals, weight, and a line to the coach.</h2>
+      <p>Food from a search, a typed line or a barcode. Measurements that keep the unit they were entered in. Messages between one client and one coach. All of it private until the client shares it, per coach and per category.</p>
+    </div>
+    <div class="phones" data-reveal>
+      <div class="p"><img class="day" src="../../ptrainr/img/phone-nutrition-priya-day.webp" width="640" height="1298" alt="Nutrition: the day's totals above the meals." loading="lazy"><img class="night" src="../../ptrainr/img/phone-nutrition-priya-night.webp" width="640" height="1298" alt="Nutrition, Night." loading="lazy"></div>
+      <div class="p"><img class="day" src="../../ptrainr/img/phone-progress-priya-day.webp" width="640" height="1298" alt="Progress: a weight chart." loading="lazy"><img class="night" src="../../ptrainr/img/phone-progress-priya-night.webp" width="640" height="1298" alt="Progress, Night." loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<section class="block navy">
+  <div class="inner one">
+    <div data-reveal>
+      <h2>One app, built three times, kept the same.</h2>
+      <p>The website is the source of truth; Android (Kotlin, Compose) and iOS (SwiftUI) copy it screen for screen, and a check fails the build when a tab, a word or a colour drifts. No framework on the web, no build step, sign-in and passkeys written by hand.</p>
+    </div>
+    <dl class="big" data-reveal>
+      <div><dd>63</dd><dt>screens graded on each platform</dt></div>
+      <div><dd>19</dd><dt>languages, two of them right to left</dt></div>
+      <div><dd>64</dd><dt>automated checks, plus 23 unit suites</dt></div>
+      <div><dd>2</dd><dt>runtime dependencies on the server</dt></div>
+    </dl>
+  </div>
+</section>
+
+<section class="block client">
+  <div class="inner">
+    <div data-reveal>
+      <h2>It used to look like every dashboard.</h2>
+      <p>In October the whole app was photographed, 990 screenshots, and audited. Three worlds were drawn as working mock-ups and one was picked: a paper training log, with two inks. Blue is always the coach. Graphite is always the client.</p>
+    </div>
+    <div class="phones" data-reveal>
+      <div class="p"><img src="../../ptrainr/img/before-logger-phone.jpg" width="780" height="1688" alt="The logger before the redesign." loading="lazy"></div>
+      <div class="p"><img class="day" src="../../ptrainr/img/phone-logger-ticked-day.webp" width="640" height="1298" alt="The logger today." loading="lazy"><img class="night" src="../../ptrainr/img/phone-logger-ticked-night.webp" width="640" height="1298" alt="The logger today, Night." loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<p class="end"><a href="https://www.ptrainr.com">ptrainr.com</a><a href="../../ride-the-bus/">Ride The Bus</a><a href="../../">Back to the portfolio</a><span class="small">Every screen is the real app in a seeded demo account. The people and their numbers are invented.</span></p>
+<script src="shared.js"></script>
+<script>
+// Fill the wall: each row's screens twice over, so the drift loops without a seam.
+for (const row of document.querySelectorAll('[data-wall]')) {
+  const names = row.dataset.wall.split(' ');
+  row.innerHTML = [...names, ...names].map(name => `<img src="../../ptrainr/img/phone-${name}-night.webp" width="640" height="1298" alt="" loading="eager">`).join('');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PTrainr · direction A, the training log</title>
+<meta name="description" content="PTrainr: a training app for coaches and their clients, on the web, Android and iOS.">
+<link rel="icon" href="../../ptrainr/img/logo.svg">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* Direction A: the page is a training log. Sections are sets; reading one ticks it. */
+.bar{display:flex;align-items:center;gap:12px;padding:14px max(16px,env(safe-area-inset-left));max-width:1180px;margin:0 auto}
+.bar .mark{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;color:var(--ink);text-decoration:none;margin-right:auto}
+.bar .mark img{width:28px;height:28px}
+.bar a.back{font-size:15px;color:var(--muted);text-decoration:none;padding:12px 6px}
+main{max-width:1180px;margin:0 auto;padding:0 16px 120px}
+.hero{display:grid;gap:32px;padding:28px 0 40px;align-items:center}
+.hero h1{font-size:clamp(34px,6.2vw,64px);line-height:1.04;letter-spacing:-.015em;font-weight:700;text-wrap:balance}
+.hero h1 .coach{color:var(--coach)}
+.hero p.lede{font-size:clamp(17px,1.6vw,20px);color:var(--ink-2);max-width:34em;margin-top:18px}
+.hero .where{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:14px;font-weight:600;background:var(--paper);border-radius:999px;padding:7px 13px;box-shadow:var(--shadow)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;justify-self:center;width:100%}
+.phone{border-radius:26px;overflow:hidden;box-shadow:var(--shadow);background:var(--paper);border:1px solid var(--rule)}
+.pair .phone:last-child{margin-top:44px}
+.who{font-size:13px;font-weight:600;margin:0 0 8px 6px}
+.who.c{color:var(--coach)}
+.note{font-size:14px;color:var(--muted);margin-top:18px;max-width:40em}
+/* the sheet: one white card per set */
+.set{background:var(--paper);border-radius:18px;box-shadow:var(--shadow);padding:22px 18px;margin-top:22px;display:grid;gap:22px;scroll-margin-top:16px}
+.set header{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start}
+.set .n{font:600 15px var(--mono);color:var(--muted);padding-top:8px}
+.set h2{font-size:clamp(24px,3vw,34px);line-height:1.12;letter-spacing:-.015em}
+.set .rx{color:var(--coach);font-weight:600;font-size:15px;margin-top:6px}
+.tick{width:44px;height:44px;border-radius:12px;border:1px solid var(--rule);display:grid;place-items:center;color:transparent;transition:background .18s ease-out,color .18s ease-out,transform .18s cubic-bezier(.2,.9,.3,1.3)}
+.tick svg{width:20px;height:20px}
+.set.done .tick{background:var(--done);border-color:var(--done);color:var(--paper);transform:scale(1)}
+.set.done .tick.pop{transform:scale(1.12)}
+.set p{color:var(--ink-2);max-width:36em}
+.set p + p{margin-top:12px}
+.shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.shots.one{grid-template-columns:1fr}
+.wide{border-radius:14px;overflow:hidden;border:1px solid var(--rule);box-shadow:var(--shadow)}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:14px;overflow:hidden}
+.facts div{background:var(--paper);padding:14px}
+.facts dt{font-size:13px;color:var(--muted)}
+.facts dd{font:600 26px/1.1 var(--mono);margin-top:4px}
+.facts dd small{font:400 13px var(--sans);color:var(--muted);display:block;margin-top:4px}
+.beforeafter{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.inks{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.ink{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.ink i{width:22px;height:22px;border-radius:50%;display:block}
+/* the logger's footer, as the page's progress */
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--rule);padding:10px 16px calc(10px + env(safe-area-inset-bottom));z-index:5}
+.foot .in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.foot b{font-size:15px;white-space:nowrap}
+.track{flex:1;height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.track i{display:block;height:100%;width:100%;background:var(--coach);transform-origin:left;transform:scaleX(0);transition:transform .3s ease-out}
+.end{padding:36px 4px 0;display:flex;flex-wrap:wrap;gap:10px 22px;font-size:15px;color:var(--muted)}
+.pre{opacity:0;transform:translateY(14px)}
+[data-reveal].in{opacity:1;transform:none;transition:opacity .45s ease-out,transform .45s cubic-bezier(.2,.7,.2,1)}
+@media (min-width:768px){
+  main{padding:0 28px 120px}
+  .hero{grid-template-columns:1.05fr .95fr;padding:48px 0 56px}
+  .set{padding:34px;grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:center;gap:40px}
+  .set header{grid-column:1/-1}
+  .set.flip .copy{order:2}
+  .facts{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .set.full{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="mark" href="#top"><img src="../../ptrainr/img/logo.svg" alt="">PTrainr</a>
+  <a class="back" href="../../">Portfolio</a>
+  <button class="theme-toggle" type="button">Show Night</button>
+</div>
+<main id="top">
+  <section class="hero">
+    <div>
+      <h1><span class="coach">A coach writes it in blue.</span> A client fills it in.</h1>
+      <p class="lede">PTrainr is a training app for coaches and the people they train. The coach builds a workout once and assigns it; the client logs it set by set, from a phone, between sets. It runs on the web, Android and iOS, and it is in a private pilot.</p>
+      <div class="where"><span class="chip">Web</span><span class="chip">Android</span><span class="chip">iOS</span><span class="chip num">19 languages</span></div>
+      <p class="note">Every screen on this page is the real app, signed in to a seeded demo account. Maya, Jordan and Priya are invented, and so are their numbers.</p>
+    </div>
+    <div class="pair">
+      <figure><p class="who c">What Maya, the coach, sees</p><div class="phone"><img class="day" src="../../ptrainr/img/phone-trainer-client-day.webp" width="640" height="1298" alt="The coach's page for one client: next workouts in blue, finished ones marked done."><img class="night" src="../../ptrainr/img/phone-trainer-client-night.webp" width="640" height="1298" alt="The same client page in the Night theme." loading="lazy"></div></figure>
+      <figure><p class="who">What her client fills in</p><div class="phone"><img class="day" src="../../ptrainr/img/phone-logger-ticked-day.webp" width="640" height="1298" alt="The workout logger with three of sixteen sets ticked green."><img class="night" src="../../ptrainr/img/phone-logger-ticked-night.webp" width="640" height="1298" alt="The same logger in the Night theme." loading="lazy"></div></figure>
+    </div>
+  </section>
+
+  <section class="set" id="s1" data-set>
+    <header><span class="n">1</span><div><h2>The logger, built for one hand</h2><p class="rx">Prescribed: 6 × 2:00, rest 60 s</p></div><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></header>
+    <div class="copy" data-reveal>
+      <p>The one screen used out of breath. The coach's targets are already in each row, in blue. A tap on the tick logs the set as written; a different number replaces it in graphite. The footer never moves, and every set saves as it is ticked.</p>
+      <p>With no signal the sets wait on the phone and go up in order when it returns, each with a key so nothing is counted twice.</p>
+    </div>
+    <div class="shots" data-reveal>
+      <figure class="phone"><img class="day" src="../../ptrainr/img/phone-logger-ticked-day.webp" width="640" height="1298" alt="Logger: sets one to three ticked, a countdown on the next." loading="lazy"><img class="night" src="../../ptrainr/img/phone-logger-ticked-night.webp" width="640" height="1298" alt="Logger in Night." loading="lazy"></figure>
+      <figure class="phone"><img class="day" src="../../ptrainr/img/phone-client-workout-done-day.webp" width="640" height="1298" alt="A finished workout: every set with what was done beside what was prescribed." loading="lazy"><img class="night" src="../../ptrainr/img/phone-client-workout-done-night.webp" width="640" height="1298" alt="A finished workout in Night." loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="set flip" id="s2" data-set>
+    <header><span class="n">2</span><div><h2>Meals, with a barcode scanner</h2><p class="rx">Prescribed: log what you ate</p></div><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></header>
+    <div class="copy" data-reveal>
+      <p>A day's meals first, the totals in one line above them. Food comes from a search, a typed line, or the camera pointed at a barcode, which is looked up in USDA FoodData Central and Open Food Facts. Only the barcode leaves the phone.</p>
+      <p>A coach sees meals only while the client shares that category, and the client can stop sharing at any time.</p>
+    </div>
+    <div class="shots" data-reveal>
+      <figure class="phone"><img class="day" src="../../ptrainr/img/phone-nutrition-priya-day.webp" width="640" height="1298" alt="Nutrition: calories, protein and carbs for the day above the meals." loading="lazy"><img class="night" src="../../ptrainr/img/phone-nutrition-priya-night.webp" width="640" height="1298" alt="Nutrition in Night." loading="lazy"></figure>
+      <figure class="phone"><img class="day" src="../../ptrainr/img/phone-client-barcode-day.webp" width="640" height="1298" alt="The barcode sheet: start the camera, scan a photo or type the number." loading="lazy"><img class="night" src="../../ptrainr/img/phone-client-barcode-night.webp" width="640" height="1298" alt="The barcode sheet in Night." loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="set" id="s3" data-set>
+    <header><span class="n">3</span><div><h2>Progress and a line to the coach</h2><p class="rx">Prescribed: weigh in, say how it went</p></div><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></header>
+    <div class="copy" data-reveal>
+      <p>Weight and body measurements keep the unit they were entered in and are never overwritten. The charts are drawn in CSS by hand. Messages are between one client and one coach, with photos and PDFs, and nobody else.</p>
+      <p>PTrainr is a coaching tool, not a medical one: it records numbers and never calls one high or low.</p>
+    </div>
+    <div class="shots" data-reveal>
+      <figure class="phone"><img class="day" src="../../ptrainr/img/phone-progress-priya-day.webp" width="640" height="1298" alt="Progress: a weight chart over five entries." loading="lazy"><img class="night" src="../../ptrainr/img/phone-progress-priya-night.webp" width="640" height="1298" alt="Progress in Night." loading="lazy"></figure>
+      <figure class="phone"><img class="day" src="../../ptrainr/img/phone-messages-priya-day.webp" width="640" height="1298" alt="A conversation between a client and her coach." loading="lazy"><img class="night" src="../../ptrainr/img/phone-messages-priya-night.webp" width="640" height="1298" alt="Messages in Night." loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="set full" id="s4" data-set>
+    <header><span class="n">4</span><div><h2>The coach's side of the desk</h2><p class="rx">Prescribed: five clients, one page each</p></div><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></header>
+    <p data-reveal>A roster, and a page per client: what is coming up, what was done, and every set they logged. A workout is built once from a library of exercises and assigned to one client or several; changing it later never rewrites what somebody already did.</p>
+    <figure data-reveal><div class="wide"><img class="day" src="../../ptrainr/img/desk-trainer-client-day.webp" width="1600" height="956" alt="The coach's desktop view of one client: next up on the left, last done on the right." loading="lazy"><img class="night" src="../../ptrainr/img/desk-trainer-client-night.webp" width="1600" height="956" alt="The same view in Night." loading="lazy"></div><figcaption>The same pages reflow from a phone's five tabs to a desktop rail.</figcaption></figure>
+  </section>
+
+  <section class="set" id="s5" data-set>
+    <header><span class="n">5</span><div><h2>Two inks: how it came to look like this</h2><p class="rx">Prescribed: stop looking generated</p></div><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></header>
+    <div class="copy" data-reveal>
+      <p>In October the whole app was photographed, 990 screenshots, and audited. Seven worlds were considered, three were drawn as working mock-ups, and one was picked: a paper training log. A pale desk, white sheets, and two inks. Blue is always the coach. Graphite is always what the client did.</p>
+      <p>The type is Atkinson Hyperlegible, made for low-vision readers, which is how anyone reads mid-set. A person can swap the blue for teal, violet, magenta or graphite; the coach's ink stays blue on every phone.</p>
+      <div class="inks"><span class="ink"><i style="background:var(--coach)"></i>Coach</span><span class="ink"><i style="background:var(--ink)"></i>Client</span><span class="ink"><i style="background:var(--done)"></i>Done</span></div>
+    </div>
+    <div class="beforeafter" data-reveal>
+      <figure><div class="phone"><img src="../../ptrainr/img/before-logger-phone.jpg" width="780" height="1688" alt="The logger before the redesign: a card per exercise with labels on every row." loading="lazy"></div><figcaption>The logger in October</figcaption></figure>
+      <figure><div class="phone"><img class="day" src="../../ptrainr/img/phone-logger-ticked-day.webp" width="640" height="1298" alt="The logger today." loading="lazy"><img class="night" src="../../ptrainr/img/phone-logger-ticked-night.webp" width="640" height="1298" alt="The logger today, Night." loading="lazy"></div><figcaption>The logger today</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="set full" id="s6" data-set>
+    <header><span class="n">6</span><div><h2>One app, three times, kept the same</h2><p class="rx">Prescribed: no drift</p></div><span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></header>
+    <p data-reveal>The website is the source of truth; the Android app (Kotlin, Compose) and the iOS app (SwiftUI) copy it screen for screen. A check reads all three codebases and fails when a tab, a row, a word or the brand colour differs, and a scoreboard grades every screen on each platform. The web app itself is plain JavaScript with no framework and no build step, on a Node server with two dependencies.</p>
+    <dl class="facts" data-reveal>
+      <div><dt>Screens graded on each platform</dt><dd>63</dd></div>
+      <div><dt>Languages, two of them right to left</dt><dd>19<small>1,976 strings each</small></dd></div>
+      <div><dt>Automated checks</dt><dd>64<small>plus 23 unit suites</small></dd></div>
+      <div><dt>Runtime dependencies on the server</dt><dd>2</dd></div>
+    </dl>
+    <p data-reveal>Sign-in is written by hand too: passwords, two-factor codes, passkeys, and Google, Microsoft and Apple, with no auth library. Health data is private by default, shared per coach and per category, and the staff dashboard can see accounts but never a workout, a meal or a measurement.</p>
+  </section>
+
+  <p class="end"><a href="https://www.ptrainr.com">ptrainr.com</a><a href="../../ride-the-bus/">Ride The Bus</a><a href="../../">Back to the portfolio</a></p>
+</main>
+<div class="foot" role="status"><div class="in"><b><span class="num" id="count">0</span> of 6 sets done</b><div class="track"><i id="fill"></i></div></div></div>
+<script src="shared.js"></script>
+<script>
+// A section is "done" once its lower half has been on screen, like ticking a set.
+(() => {
+  const sets = [...document.querySelectorAll('[data-set]')], count = document.getElementById('count'), fill = document.getElementById('fill');
+  const update = () => { const n = sets.filter(s => s.classList.contains('done')).length; count.textContent = n; fill.style.transform = `scaleX(${n / sets.length})`; };
+  if (!('IntersectionObserver' in window)) { sets.forEach(s => s.classList.add('done')); return update(); }
+  const seen = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const set = entry.target.closest('[data-set]'); set.classList.add('done');
+    const tick = set.querySelector('.tick'); tick.classList.add('pop'); setTimeout(() => tick.classList.remove('pop'), 180);
+    seen.unobserve(entry.target); update();
+  }), { threshold: 1 });
+  // Watch a thin marker at each section's end.
+  sets.forEach(set => { const mark = document.createElement('span'); mark.style.cssText = 'display:block;height:1px;grid-column:1/-1;order:9'; set.append(mark); seen.observe(mark); });
+})();
+</script>
+</body>
+</html>
